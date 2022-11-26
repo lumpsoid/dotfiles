@@ -77,13 +77,13 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git autojump sudo zsh-syntax-highlighting zsh-autosuggestions you-should-use)
+plugins=(git autojump sudo zsh-syntax-highlighting zsh-autosuggestions you-should-use zsh-navigation-tools)
 
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-export PATH=/home/qq/Applications/miniconda3/bin:$PATH
+#export PATH=/home/qq/Applications/miniconda3/bin:$PATH
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -110,9 +110,12 @@ export PATH=/home/qq/Applications/miniconda3/bin:$PATH
 alias dotf='/usr/bin/git --git-dir=$HOME/dotfiles/ --work-tree=$HOME'
 alias uni='cd ~/Documents/i && nvim index.md'
 alias gmfo="git merge --ff-only"
-alias files_to_csv="bash /home/qq/Documents/Laoshi/notebooks/script_to_preptoc.sh"
+alias files_to_csv="bash /home/qq/Documents/Laoshi/notebooks/scripts/script_to_preptoc.sh"
 alias vscode="/home/qq/Applications/VSCode-linux-x64/code"
 alias outline="/home/qq/Applications/Outline-Client.AppImage"
+alias bws="bw --pretty list items --search"
+alias bwps="bw --pretty list items --search apple dev | jq '.[] | {name: .name, username: .login.username, password: .login.password}'"
+
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
