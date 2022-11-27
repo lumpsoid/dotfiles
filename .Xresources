@@ -1,0 +1,10 @@
+!xterm config
+*.termName: xterm-256color
+*.vt100.locale: false
+*.vt100.utf8: true
+*.vt100.saveLines: 4096
+*.vt100.selectToClipboard: true
+XTerm.vt100.faceName: MesloLGS NF
+XTerm.vt100.faceSize: 12
+*foreground: green
+*background: black

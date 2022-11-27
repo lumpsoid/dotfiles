@@ -115,6 +115,7 @@ alias vscode="/home/qq/Applications/VSCode-linux-x64/code"
 alias outline="/home/qq/Applications/Outline-Client.AppImage"
 alias bws="bw --pretty list items --search"
 alias bwps="bw --pretty list items --search apple dev | jq '.[] | {name: .name, username: .login.username, password: .login.password}'"
+alias ttest="prime-run /home/qq/.local/share/Steam/ubuntu12_32/reaper SteamLaunch AppId=22320 -- /home/qq/.local/share/Steam/ubuntu12_32/steam-launch-wrapper -- '/home/qq/.local/share/Steam/steamapps/common/SteamLinuxRuntime_soldier'/_v2-entry-point --verb=waitforexitandrun -- '/home/qq/.local/share/Steam/steamapps/common/Proton 7.0'/proton waitforexitandrun  '/home/qq/.local/share/Steam/steamapps/common/Morrowind/Morrowind Launcher.exe'"
 
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
