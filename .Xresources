@@ -4,7 +4,12 @@
 *.vt100.utf8: true
 *.vt100.saveLines: 4096
 *.vt100.selectToClipboard: true
-XTerm.vt100.faceName: MesloLGS NF
-XTerm.vt100.faceSize: 12
+*.vt100.faceName: MesloLGS NF
+*.vt100.faceSize: 10
+!keycode 22
+!*.vt100.translations: #override \
+!    Ctrl<Key>BackSpace: string("\033[7;5~")
+
+! theam
 *foreground: green
 *background: black

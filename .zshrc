@@ -100,6 +100,9 @@ source $ZSH/oh-my-zsh.sh
 # export ARCHFLAGS="-arch x86_64"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
+function bwsp(){
+    bw --pretty list items --search ${@:1} | jq '.[] | {name: .name, username: .login.username, password: .login.password}'
+}
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
@@ -114,9 +117,13 @@ alias files_to_csv="bash /home/qq/Documents/Laoshi/notebooks/scripts/script_to_p
 alias vscode="/home/qq/Applications/VSCode-linux-x64/code"
 alias outline="/home/qq/Applications/Outline-Client.AppImage"
 alias bws="bw --pretty list items --search"
-alias bwps="bw --pretty list items --search apple dev | jq '.[] | {name: .name, username: .login.username, password: .login.password}'"
-alias ttest="prime-run /home/qq/.local/share/Steam/ubuntu12_32/reaper SteamLaunch AppId=22320 -- /home/qq/.local/share/Steam/ubuntu12_32/steam-launch-wrapper -- '/home/qq/.local/share/Steam/steamapps/common/SteamLinuxRuntime_soldier'/_v2-entry-point --verb=waitforexitandrun -- '/home/qq/.local/share/Steam/steamapps/common/Proton 7.0'/proton waitforexitandrun  '/home/qq/.local/share/Steam/steamapps/common/Morrowind/Morrowind Launcher.exe'"
-
+function bwu(){
+    BW_SESSION=$(bw unlock | grep export | cut -d '"' -f 2) && export BW_SESSION
+}
+function bwsp(){
+    bw --pretty list items --search ${@:1} | jq '.[] | {name: .name, username: .login.username, password: .login.password}'
+}
+alias mutt="cd ~/Documents/mutt_attachments && mutt"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
