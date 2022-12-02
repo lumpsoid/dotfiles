@@ -199,4 +199,7 @@ bindsym $win+m exec i3-sensible-terminal -e neomutt
 bindsym $win+r exec i3-sensible-terminal -e newsboat
 # xmpp
 bindsym $win+x exec i3-sensible-terminal -e profanity
+# vault
 bindsym $win+u exec i3-sensible-terminal -e nvim $HOME/Documents/i/index.md
+# calc
+bindcode 148 exec i3-sensible-terminal -e bc
