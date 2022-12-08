@@ -1,6 +1,6 @@
 !xterm config
 *.termName: xterm-256color
-*.vt100.locale: false
+*locale: UTF-8
 *.vt100.utf8: true
 *.vt100.saveLines: 4096
 *.vt100.selectToClipboard: true
