@@ -1,0 +1,7 @@
+#!/bin/sh
+
+#imagemagick package
+#xclip package
+timestamp=$(date +%Y%m%d%H%M%S)
+import ~/Pictures/Screenshots/$timestamp.avif &&
+cat ~/Pictures/Screenshots/$timestamp.avif | xclip -selection clipboard -target image/png -i | notify-send 'screenshot done'

@@ -114,10 +114,11 @@ function bwsp(){
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias calc='remind -cb1m ~/.config/remind/uni.rem'
 alias dotf='/usr/bin/git --git-dir=$HOME/dotfiles/ --work-tree=$HOME'
 alias uni='cd ~/Documents/i && nvim index.md'
 alias gmfo="git merge --ff-only"
-alias files_to_csv="bash /home/qq/Documents/Laoshi/notebooks/scripts/script_to_preptoc.sh"
+alias files_to_csv="bash ~/Documents/Laoshi/scripts/script_to_preptoc.sh"
 alias vscode="/home/qq/Applications/VSCode-linux-x64/code"
 alias outline="/home/qq/Applications/Outline-Client.AppImage"
 alias bws="bw --pretty list items --search"

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+sudo systemctl start httpd &&
+sudo systemctl start mariadb &&
+vivaldi-stable http://localhost/lwt;

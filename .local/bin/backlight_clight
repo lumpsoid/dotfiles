@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [[ "$1" == "-inc" ]]
+    then
+        busctl --user call org.clight.clight /org/clight/clight org.clight.clight IncBl d "$2"
+        exit 1
+fi
+
+if [[ "$1" == "-dec" ]]
+    then
+        busctl --user call org.clight.clight /org/clight/clight org.clight.clight DecBl d "$2"
+        exit 1
+fi

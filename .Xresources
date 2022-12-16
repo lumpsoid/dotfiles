@@ -5,7 +5,7 @@
 *.vt100.saveLines: 4096
 *.vt100.selectToClipboard: true
 *.vt100.faceName: MesloLGS NF
-*.vt100.faceSize: 10
+*.vt100.faceSize: 20
 !keycode 22
 !*.vt100.translations: #override \
 !    Ctrl<Key>BackSpace: string("\033[7;5~")

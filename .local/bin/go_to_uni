@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd ~/Documents/i &&
+nvim index.md

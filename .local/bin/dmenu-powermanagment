@@ -1,0 +1,6 @@
+#!/bin/sh
+
+case "$(printf "shutdown\\nsuspend" | dmenu -i -p "Bye?")" in
+	"shutdown") secret-tool lookup user iurii service sudo | sudo -S shutdown -f now ;;
+	suspend) secret-tool lookup user iurii service sudo | sudo -S suspend ;;
+esac

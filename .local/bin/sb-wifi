@@ -1,0 +1,2 @@
+#!/bin/sh
+iw dev wlo1 link | awk '/SSID/ { gsub(/\t/, ""); print}'
