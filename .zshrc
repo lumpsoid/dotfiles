@@ -104,9 +104,6 @@ source $ZSH/oh-my-zsh.sh
 # export ARCHFLAGS="-arch x86_64"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
-function bwsp(){
-    bw --pretty list items --search ${@:1} | jq '.[] | {name: .name, username: .login.username, password: .login.password}'
-}
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
@@ -115,10 +112,12 @@ function bwsp(){
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias calc='remind -cb1m ~/.config/remind/uni.rem'
+alias et='remind -b1 ~/.config/remind/uni.rem | gxmessage -file -'
 alias dotf='/usr/bin/git --git-dir=$HOME/dotfiles/ --work-tree=$HOME'
 alias uni='cd ~/Documents/i && nvim index.md'
 alias gmfo="git merge --ff-only"
 alias files_to_csv="bash ~/Documents/Laoshi/scripts/script_to_preptoc.sh"
+alias unzip_bunch_files="unzip -jo '*.zip' && gzip -dv *.json.gz && rm *.zip"
 alias vscode="/home/qq/Applications/VSCode-linux-x64/code"
 alias outline="/home/qq/Applications/Outline-Client.AppImage"
 alias bws="bw --pretty list items --search"

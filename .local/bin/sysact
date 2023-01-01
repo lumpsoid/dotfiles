@@ -14,7 +14,7 @@ wmpid(){ # This function is needed if there are multiple instances of the window
 }
 
 function ss(){
-    secret-tool lookup user iurii service sudo | sudo -S ${@:1}
+    pass sudo | sudo -S ${@:1}
 }
 
 case "$(printf "🔒 lock\n🚪 leave $WM\n♻️ renew $WM\n🐻 hibernate\n🔃 reboot\n🖥️shutdown\n💤 sleep\n📺 display off" | dmenu -i -p 'Action: ')" in
