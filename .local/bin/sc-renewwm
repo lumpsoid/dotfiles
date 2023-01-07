@@ -13,4 +13,5 @@ wmpid(){ # This function is needed if there are multiple instances of the window
 	echo "${tree%%)*}"
 }
 
-secret-tool lookup user iurii service sudo | sudo -S kill -HUP "$(wmpid)"
+pass sudo | sudo -S kill -HUP "$(wmpid)"
+#pass sudo | sudo -S echo "$(wmpid)"

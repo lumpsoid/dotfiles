@@ -102,6 +102,9 @@ source $ZSH/oh-my-zsh.sh
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
+#
+
+bindkey '\e[7;5~' backward-kill-word
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -121,13 +124,62 @@ alias unzip_bunch_files="unzip -jo '*.zip' && gzip -dv *.json.gz && rm *.zip"
 alias vscode="/home/qq/Applications/VSCode-linux-x64/code"
 alias outline="/home/qq/Applications/Outline-Client.AppImage"
 alias bws="bw --pretty list items --search"
+alias mutt="cd ~/Documents/mutt_attachments && mutt"
+
+# functions
 function bwu(){
     BW_SESSION=$(bw unlock | grep export | cut -d '"' -f 2) && export BW_SESSION
 }
 function bwsp(){
-    bw --pretty list items --search ${@:1} | jq '.[] | {name: .name, username: .login.username, password: .login.password}'
+  if [ ! -n "${BW_SESSION+x}" ]; then
+    BW_SESSION=$(bw unlock | grep export | cut -d '"' -f 2) && export BW_SESSION &&
+  fi
+  bw --pretty list items --search ${@:1} | jq '.[] | {name: .name, username: .login.username, password: .login.password}'
 }
-alias mutt="cd ~/Documents/mutt_attachments && mutt"
+function bwai() {
+  # Parse the options
+  local note="Some note"
+  local name
+  local login
+  local password
+  local OPTIONS
+  OPTIONS=$(getopt -o n:l:p:t: -l name:,login:,password:,note:, -- "$@")
+  eval set -- "$OPTIONS"
+  while true; do
+    case "$1" in
+      -n|--name)
+        name=$2
+        shift 2
+        ;;
+      -l|--login)
+        login=$2
+        shift 2
+        ;;
+      -p|--password)
+        password=$2
+        shift 2
+        ;;
+      -t|--note)
+        note=$2
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        echo "Internal error!"
+        return
+        ;;
+    esac
+  done
+  
+  if [ ! -n "${BW_SESSION+x}" ]; then
+    BW_SESSION=$(bw unlock | grep export | cut -d '"' -f 2) && export BW_SESSION &&
+  fi
+  bw get template item | jq ".name=\"${name}\" | .notes=\"${note}\" | .login=$(bw get template item.login | jq ".username=\"${login}\" | .password=\"${password}\"")"
+  #| bw encode | bw create item
+}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
