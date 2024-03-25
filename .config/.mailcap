@@ -1,0 +1,4 @@
+#text/html; lynx -force-html "%s" ;
+text/plain; nvim "%s" ;
+image/*; chafa "%s" ;
+image/jpeg; /usr/bin/xdg-open %s

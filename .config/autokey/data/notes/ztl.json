@@ -1,0 +1,34 @@
+{
+    "type": "script",
+    "description": "ztl",
+    "store": {},
+    "modes": [
+        1,
+        3
+    ],
+    "usageCount": 44,
+    "prompt": false,
+    "omitTrigger": false,
+    "showInTrayMenu": false,
+    "abbreviation": {
+        "abbreviations": [
+            "pnk"
+        ],
+        "backspace": true,
+        "ignoreCase": false,
+        "immediate": true,
+        "triggerInside": false,
+        "wordChars": "[\\w]"
+    },
+    "hotkey": {
+        "modifiers": [
+            "<alt>",
+            "<ctrl>"
+        ],
+        "hotKey": "x"
+    },
+    "filter": {
+        "regex": null,
+        "isRecursive": false
+    }
+}

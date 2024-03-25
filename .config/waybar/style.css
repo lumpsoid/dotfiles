@@ -1,0 +1,57 @@
+* {
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#waybar {
+    font-size: 13px;
+    background: #112233;
+    color: white;
+}
+
+#battery,
+#clock,
+#cpu,
+#keyboard-state,
+#memory,
+#network,
+#pulseaudio,
+#temperature {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#tags button {
+    padding: 0 2px;
+    color: white;
+}
+
+#tags button.focused {
+    /*background: #edb3eb;*/
+    color: #00cc99;
+}
+
+#tags button.occupied {
+    background: #595552;
+}
+
+#battery.warning {
+    color: orange;
+}
+
+#battery.critical {
+    color: red;
+}
+
+#battery.warning.discharging {
+    animation-name: blink-warning;
+    animation-duration: 3s;
+}
+
+#battery.critical.discharging {
+    animation-name: blink-critical;
+    animation-duration: 2s;
+}

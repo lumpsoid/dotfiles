@@ -1,0 +1,10 @@
+external-url-viewer "urlview"
+reload-threads 3
+
+bind-key U show-urls
+bind-key l open
+bind-key h quit
+bind-key j next
+bind-key k prev
+bind-key J next-feed
+bind-key K prev-feed
