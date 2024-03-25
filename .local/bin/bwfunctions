@@ -1,0 +1,116 @@
+# vim: filetype=sh
+# functions
+function bwu(){
+  if [ ! -n "${BW_SESSION+x}" ]; then
+    while [ -z "$BW_SESSION" ]; do
+      BW_SESSION=$(bw unlock | grep export | cut -d '"' -f 2)
+    done
+    export BW_SESSION
+  fi
+}
+function bwsp(){
+  bwu &&
+  bw --pretty list items --search ${@:1} | jq '.[] | {id: .id, name: .name, username: .login.username, password: .login.password}'
+}
+function bwai() {
+  # Parse the options
+  local note="Some note"
+  local name
+  local login
+  local password
+  local OPTIONS
+  OPTIONS=$(getopt -o n:l:p:t: -l name:,login:,password:,note:, -- "$@")
+  eval set -- "$OPTIONS"
+  while true; do
+    case "$1" in
+      -n|--name)
+        name=$2
+        shift 2
+        ;;
+      -l|--login)
+        login=$2
+        shift 2
+        ;;
+      -p|--password)
+        password=$2
+        shift 2
+        ;;
+      -t|--note)
+        note=$2
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        echo "Internal error!"
+        return
+        ;;
+    esac
+  done
+  
+  bwu &&
+  bw get template item | jq ".name=\"${name}\" | .notes=\"${note}\" | .login=$(bw get template item.login | jq ".username=\"${login}\" | .password=\"${password}\"")" | bw encode | bw create item
+}
+
+function bwe() {
+  # Parse the options
+  local my_item
+  local id
+  local name=""
+  local note=""
+  local login=""
+  local password=""
+  local OPTIONS
+  OPTIONS=$(getopt -o i:n:o:l:p: -l id:,name:,note:,login:,password:, -- "$@")
+  eval set -- "$OPTIONS"
+  while true; do
+    case "$1" in
+      -i|--id)
+        id=$2
+        shift 2
+        ;;
+      -n|--name)
+        name=$2
+        shift 2
+        ;;
+      -o|--note)
+        note=$2
+        shift 2
+        ;;
+      -l|--login)
+        login=$2
+        shift 2
+        ;;
+      -p|--password)
+        password=$2
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        echo "Internal error!"
+        return
+        ;;
+    esac
+  done
+  
+  bwu &&
+  local my_item=$(bw get item "${id}")
+  if [ -z "${name}" ]; then
+    name=$(echo "${my_item}" | jq --raw-output '.name')
+  fi
+  if [ -z "${note}" ]; then
+    note=$(echo "${my_item}" | jq --raw-output '.notes')
+  fi
+  if [ -z "${login}" ]; then
+    login=$(echo "${my_item}" | jq --raw-output '.login.username')
+  fi
+  if [ -z "${password}" ]; then
+    password=$(echo "${my_item}" | jq --raw-output '.login.password')
+  fi
+  echo "${my_item}"| jq ".name=\"${name}\" | .notes=\"${note}\" | .login.password=\"${password}\" | .login.username=\"${login}\"" | bw encode | bw edit item "${id}"
+}

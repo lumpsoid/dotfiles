@@ -1,0 +1,13 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+# The type as listed above
+Type=Application
+# The name of the application
+Name=sxiv
+# A comment which can/will be used as a tooltip
+Comment=photo
+# The executable of the application, possibly with arguments.
+Exec=/usr/bin/sxiv %F
+MimeType=image/*
+# Describes whether this application needs to be run in a terminal or not
+Terminal=false

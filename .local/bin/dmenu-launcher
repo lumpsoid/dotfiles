@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Define the path to your .desktop files
+desktop_files_dir="$HOME/.local/share/applications"
+
+# Use awk to extract the application names from .desktop files
+selected_app="$desktop_files_dir/$(ls "$desktop_files_dir" | dmenu -i -p "Launch:")"
+#| awk -F\. '{print $1}')
+
+
+# Launch the selected application
+if [ -r "$selected_app" ]; then
+  gio launch "$selected_app"
+fi
+

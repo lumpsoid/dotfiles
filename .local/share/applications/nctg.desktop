@@ -1,0 +1,7 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Name=nctg
+Comment=communication
+Exec=foot -e nchat -d /home/qq/.config/nchat
+Terminal=false

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+st -e neomutt &
+st -e "nctg" &
+
+wait
+exit 1

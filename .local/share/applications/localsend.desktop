@@ -1,0 +1,17 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+
+# The type as listed above
+Type=Application
+
+# The name of the application
+Name=localSend
+
+# A comment which can/will be used as a tooltip
+Comment=transfer
+
+# The executable of the application, possibly with arguments.
+#Exec=/home/qq/Applications/Loca
+
+# Describes whether this application needs to be run in a terminal or not
+Terminal=false

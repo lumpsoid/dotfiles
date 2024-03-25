@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd ~/Documents/notes/ &&
+nvim 'index.md' -c 'lua require("core.custom_functions").openJournal()' -c 'normal Go'

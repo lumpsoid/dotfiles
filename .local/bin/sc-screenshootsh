@@ -1,0 +1,26 @@
+#!/bin/sh
+
+#imagemagick package
+#xclip package
+
+if pgrep "Xorg" > /dev/null; then
+    timestamp=$(date +%Y%m%d%H%M%S)
+    import /tmp/$timestamp.png &&
+    cat /tmp/$timestamp.png | xclip -selection clipboard -target image/png -i | notify-send 'screenshot done' &&
+    convert -quality 57 /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".avif &&
+    # cjxl /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".jxl -q 60 --num_threads=4 &&
+    rm /tmp/"$timestamp".png &&
+    #ksnip -r &&
+    exit;
+fi
+
+if pgrep "river" > /dev/null; then
+    timestamp=$(date +%Y%m%d%H%M%S)
+    geometry=$(slurp)
+    grim -g "$geometry" /tmp/"$timestamp".png &&
+    wl-copy < /tmp/"$timestamp".png &&
+    #cjxl /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".jxl -q 60 --num_threads=4 &&
+    convert -quality 57 /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".avif &&
+    rm /tmp/"$timestamp".png &&
+    exit;
+fi

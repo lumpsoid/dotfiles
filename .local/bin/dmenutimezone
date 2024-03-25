@@ -1,0 +1,5 @@
+#!/bin/sh
+
+TIMEZONE=$(timedatectl list-timezones | dmenu -i -l 30)
+
+#timedatectl set-timezone "$TIMEZONE"

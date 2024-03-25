@@ -1,0 +1,3 @@
+#!/bin/sh
+#iw dev wlan0 link | awk '/SSID/ { gsub(/\t/, ""); print}'
+nmcli dev show wlan0 | awk '/GENERAL.CONNECTION/ {printf "🛜"$NF}'

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -jar /home/qq/Applications/foreign_language_text_reader/FLTR.jar

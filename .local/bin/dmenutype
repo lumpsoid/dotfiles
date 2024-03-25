@@ -1,0 +1,4 @@
+#!/bin/sh
+BOOKMARK=$(cat ~/.local/share/qq/bookmarks | dmenu -i -l 30 | cut -d '>' -f1)
+#BOOKMARK=$(cat ~/.local/share/qq/bookmarks | fzf | cut -d ' ' -f1)
+xdotool key --clearmodifiers shift && xdotool type "$BOOKMARK"
