@@ -1,0 +1,3 @@
+#!/bin/sh
+kernelname=$1
+python -m ipykernel install --user --name "$kernelname" --display-name "$kernelname"
