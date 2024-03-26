@@ -5,7 +5,7 @@
 Type=Application
 
 # The name of the application
-Name=code
+Name=vscode
 
 # A comment which can/will be used as a tooltip
 Comment=IDE
