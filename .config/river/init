@@ -27,8 +27,8 @@ init_programm "waybar"
 init_programm "gnome-keyring-daemon"
 riverctl spawn "dbus-update-activation-environment DISPLAY XAUTHORITY WAYLAND_DISPLAY"
 #export $(dbus-launch)
-#eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/ssh-git
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ssh_git
 #eval "$(gnome-keyring-daemon)"
 #riverctl spawn 'mailsync'
 
@@ -46,7 +46,7 @@ riverctl map normal $mod+Shift R spawn "~/.config/river/init"
 # $mod+Shift+Return to start an instance of foot (https://codeberg.org/dnkl/foot)
 riverctl map normal $mod Return spawn foot
 
-riverctl map -layout 0 normal $mod D spawn 'rofi -show drun'
+riverctl map -layout 0 normal $mod D spawn 'fuzzel'
 riverctl map normal $mod W spawn "MOZ_ENABLE_WAYLAND=1 $BROWSER"
 riverctl map normal $mod N spawn "gio launch ~/.local/share/applications/obsidian.desktop"
 #riverctl map normal $mod M spawn 'foot neomutt'
