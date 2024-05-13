@@ -10,14 +10,26 @@ antigen apply
 
 export PATH="$PATH":"$HOME/.local/bin"
 export PATH="$PATH":"$HOME/.pub-cache/bin"
-export PATH="$PATH":"/home/qq/Documents/Programming/flutter/flutter/bin"
-export ANDROID_SDK_HOME=/home/qq/.config/.android
+export PATH="$PATH":"/home/qq/Documents/programming/flutter/flutter/bin"
+
+# android development
+export ANDROID_HOME=/home/qq/.config/Android
+export ANDROID_AVD_HOME=/home/qq/.config/.android/avd/
+export PATH="$PATH":"$ANDROID_HOME/tools"
+export PATH="$PATH":"$ANDROID_HOME/cmdline-tools/latest/bin"
+export PATH="$PATH":"$ANDROID_HOME/platform-tools"
+#export ANDROID_SDK_ROOT=/home/qq/.config/.android
+
+#flutter web dev
+export CHROME_EXECUTABLE=/usr/bin/chromium
 
 source /usr/share/fzf/completion.zsh
 source /usr/share/fzf/key-bindings.zsh
 
 alias ssh_pi='ssh -i ~/.ssh/pi-qq-home pi@192.168.1.19'
 
+export NNN_OPENER=/home/qq/.config/nnn/plugins/nuke
+export GUI=1
 n ()
 {
     # Block nesting of nnn in subshells
@@ -90,3 +102,5 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/.local/lib/mojo
+export PATH=$PATH:~/.modular/pkg/packages.modular.com_mojo/bin/
