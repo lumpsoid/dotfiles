@@ -65,7 +65,7 @@
 #   2. Clean-up the unnecessary exit codes
 
 # set to 1 to enable GUI apps and/or BIN execution
-GUI="${GUI:-1}"
+GUI="${GUI:-0}"
 BIN="${BIN:-0}"
 
 set -euf -o noclobber -o noglob -o nounset
@@ -270,14 +270,14 @@ abspath() {
 # storing the result to a tmp file is faster than calling listimages twice
 listimages() {
     find -L "///${1%/*}" -maxdepth 1 -type f -print0 |
-        grep -izZE '\.(jpe?g|png|gif|webp|tiff|bmp|ico|svg|avif|heic|png)$' |
-        sort -z | tee "$tmp"
+        grep -izZE '\.(jpe?g|png|gif|webp|tiff|bmp|ico|svg|avif)$' |
+        sort -zV | tee "$tmp"
 }
 
 load_dir() {
     abspath "$2"
     tmp="${TMPDIR:-/tmp}/nuke_$$"
-    trap 'rm -f $tmp' EXIT
+    trap 'rm -f -- "$tmp"' EXIT
     count="$(listimages "$abs_target" | grep -a -m 1 -ZznF "$abs_target" | cut -d: -f1)"
 
     if [ -n "$count" ]; then
@@ -402,7 +402,7 @@ handle_multimedia() {
         #                  "${FPATH}";
         #     then
         #         convert -- "${preview_png}" "${IMAGE_CACHE_PATH}" \
-        #             && rm "${preview_png}" \
+        #             && rm -- "${preview_png}" \
         #             && exit 6
         #     else
         #         exit 1
@@ -455,13 +455,6 @@ handle_mime() {
         text/troff)
             man -l "${FPATH}"
             exit 0;;
-
-        ## Manpages
-        text/csv)
-            if type libreoffice > /dev/null 2>&1; then
-                libreoffice "${FPATH}" &
-                exit 0;;
-            fi
 
         ## Text
         text/* | */xml)
@@ -530,6 +523,13 @@ handle_blocked() {
 
         application/octet-stream)
             exit 0;;
+    esac
+}
+
+handle_bin() {
+    case "${MIMETYPE}" in
+        application/x-executable|application/x-shellscript)
+        clear
         echo '-------- Executable File --------' && file --dereference --brief -- "${FPATH}"
         printf "Run executable (y/N/'a'rgs)? "
         read -r answer
