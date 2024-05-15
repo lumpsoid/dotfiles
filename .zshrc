@@ -87,6 +87,8 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
+eval "$(navi widget zsh)"
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/qq/.config/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
