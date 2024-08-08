@@ -1,0 +1,27 @@
+AddPackage opencl-nvidia # OpenCL implemention for NVIDIA
+AddPackage vulkan-tools # Vulkan Utilities and Tools
+AddPackage mesa-utils # Essential Mesa utilities
+AddPackage lib32-mesa # An open-source implementation of the OpenGL specification (32-bit)
+
+AddPackage gst-libav # Multimedia graph framework - libav plugin
+AddPackage gst-plugins-bad # Multimedia graph framework - bad plugins
+AddPackage gst-plugins-ugly # Multimedia graph framework - ugly plugins
+AddPackage gstreamer-vaapi # Multimedia graph framework - vaapi plugin
+
+AddPackage vkd3d # Direct3D 12 to Vulkan translation library By WineHQ
+AddPackage vulkan-radeon # Radeon's Vulkan mesa driver
+AddPackage gamemode # A daemon/lib combo that allows games to request a set of optimisations be temporarily applied to the host OS
+
+AddPackage mangohud # A Vulkan overlay layer for monitoring FPS, temperatures, CPU/GPU load and more.
+AddPackage lib32-mangohud # 32-bit libraries for MangoHud and MangoApp
+AddPackage steam # Valve's digital software delivery system
+#AddPackage ttf-liberation # Font family which aims at metric compatibility with Arial, Times New Roman, and Courier New FOR STEAM
+AddPackage wine-staging # A compatibility layer for running Windows programs - Staging branch
+AddPackage lutris # Open Gaming Platform
+
+AddPackage scanmem # Memory scanner designed to isolate the address of an arbitrary variable in an executing process
+
+AddPackage --foreign protontricks # A simple wrapper that does winetricks things for Proton enabled games.
+AddPackage --foreign dxvk-bin # A Vulkan-based compatibility layer for Direct3D 9/10/11 which allows running 3D applications on Linux using Wine (Windows DLL binary files)
+AddPackage --foreign heroic-games-launcher-bin # An Open source Launcher for Epic, Amazon and GOG Games
+AddPackage --foreign protonup-qt # Install and manage Proton-GE and Luxtorpeda for Steam and Wine-GE for Lutris

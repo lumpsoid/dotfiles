@@ -1,0 +1,24 @@
+AddPackage xorg-xlsclients # List client applications running on a display
+AddPackage river # A dynamic tiling wayland compositor
+AddPackage waybar # Highly customizable Wayland bar for Sway and Wlroots based compositors
+AddPackage foot # Fast, lightweight, and minimalistic Wayland terminal emulator
+AddPackage dwl
+AddPackage fuzzel # Application launcher for wlroots based Wayland compositors
+AddPackage bemenu # Dynamic menu library and client program inspired by dmenu
+AddPackage foot # Fast, lightweight, and minimalistic Wayland terminal emulator
+AddPackage gammastep # Adjust the color temperature of your screen according to your surroundings.
+AddPackage imv # Image viewer for Wayland and X11
+AddPackage grim # Screenshot utility for Wayland
+AddPackage qt5-wayland # Provides APIs for Wayland
+AddPackage qt6-wayland # Provides APIs for Wayland
+AddPackage river # A dynamic tiling wayland compositor
+AddPackage slurp # Select a region in a Wayland compositor
+AddPackage waybar # Highly customizable Wayland bar for Sway and Wlroots based compositors
+AddPackage wev # A tool for debugging wayland events on a Wayland window, analagous to the X11 tool xev
+AddPackage wl-clipboard # Command-line copy/paste utilities for Wayland
+AddPackage xdg-desktop-portal-wlr # xdg-desktop-portal backend for wlroots
+AddPackage wlr-randr # Utility to manage outputs of a Wayland compositor
+AddPackage iw
+AddPackage --foreign yambar # Modular status panel for X11 and Wayland, inspired by polybar
+AddPackage niri # A scrollable-tiling Wayland compositor
+AddPackage kanshi # Dynamic output configuration for Wayland WMs

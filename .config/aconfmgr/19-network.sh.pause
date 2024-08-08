@@ -1,0 +1,7 @@
+AddPackage nmap # Utility for network discovery and security auditing
+AddPackage numactl # Simple NUMA policy support
+AddPackage openbsd-netcat # TCP/IP swiss army knife. OpenBSD variant.
+
+AddPackage --foreign cloudflare-warp-bin # Cloudflare Warp Client
+
+AddPackage i2pd # A full-featured C++ implementation of the I2P router

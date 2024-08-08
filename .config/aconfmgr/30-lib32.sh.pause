@@ -1,0 +1,15 @@
+AddPackage lib32-giflib # Library for reading and writing gif images
+AddPackage lib32-gnutls # A library which provides a secure layer over a reliable transport layer (32-bit)
+AddPackage lib32-gst-plugins-base-libs # Multimedia graph framework (32-bit) - base
+AddPackage lib32-gtk3 # GObject-based multi-platform GUI toolkit
+AddPackage lib32-libjpeg-turbo # JPEG image codec with accelerated baseline compression and decompression
+AddPackage lib32-libpng # A collection of routines used to create PNG format graphics files (32-bit)
+AddPackage lib32-libpulse # A featureful, general-purpose sound server (32-bit client libraries)
+AddPackage lib32-libva # Video Acceleration (VA) API for Linux (32-bit)
+AddPackage lib32-libxcomposite # X11 Composite extension library (32-bit)
+AddPackage lib32-libxinerama # X11 Xinerama extension library (32-bit)
+AddPackage lib32-libxslt # XML stylesheet transformation library (32-bit)
+AddPackage lib32-mpg123 # Console based real time MPEG Audio Player for Layer 1, 2 and 3 (32-bit)
+AddPackage lib32-ocl-icd # OpenCL ICD Bindings (32-bit)
+AddPackage lib32-openal # Cross-platform 3D audio library, software implementation (32-bit)
+AddPackage lib32-v4l-utils # Userspace tools and conversion library for Video 4 Linux (32-bit)
