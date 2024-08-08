@@ -5,7 +5,7 @@
 Type=Application
 
 # The name of the application
-Name=chromium
+Name=chromiumWay
 
 # A comment which can/will be used as a tooltip
 Comment=browser

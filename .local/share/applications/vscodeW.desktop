@@ -5,13 +5,13 @@
 Type=Application
 
 # The name of the application
-Name=vscode
+Name=vscodeWayland
 
 # A comment which can/will be used as a tooltip
 Comment=IDE
 
 # The executable of the application, possibly with arguments.
-Exec=/home/qq/Applications/VSCode-linux-x64/bin/code
+Exec=/home/qq/Applications/VSCode-linux-x64/bin/code --enable-features=UseOzonePlatform --ozone-platform=wayland
 
 # Describes whether this application needs to be run in a terminal or not
 Terminal=false

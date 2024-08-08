@@ -1,17 +1,12 @@
 #!/usr/bin/env xdg-open
 [Desktop Entry]
-
 # The type as listed above
 Type=Application
-
 # The name of the application
-Name=vscode
-
+Name=mtk gui
 # A comment which can/will be used as a tooltip
-Comment=IDE
-
+Comment=android
 # The executable of the application, possibly with arguments.
-Exec=/home/qq/Applications/VSCode-linux-x64/bin/code
-
+Exec=/home/qq/.local/bin/mtk-gui-open
 # Describes whether this application needs to be run in a terminal or not
 Terminal=false
