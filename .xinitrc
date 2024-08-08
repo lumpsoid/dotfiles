@@ -24,6 +24,8 @@ if [ -d /etc/X11/xinit/xinitrc.d ] ; then
 	unset f
 fi
 
+xset r rate 300 50
+
 #mailsync &
 #remind -z -k'gxmessage -title "reminder" %s &' ~/.config/remind/uni.rem & 
 #lxpolkit &
@@ -32,6 +34,8 @@ fi
 #/usr/bin/pipewire-pulse &
 #/usr/bin/wireplumber &
 #autokey-gtk &
+wired -r &
 dunst &
 dwmblocks &
+#xmobar &
 exec dwm
