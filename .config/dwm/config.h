@@ -35,7 +35,7 @@ typedef struct {
     const void *cmd;
 } Sp;
 const char *spcmd1[] = {TERMINAL, "-n", "spterm", "-g", "120x34", NULL };
-const char *spcmd2[] = {TERMINAL, "-n", "spcalc", "-f", "monospace:size=16", "-g", "50x20", "-e", "bc", "-lq", NULL };
+const char *spcmd2[] = {TERMINAL, "-n", "spcalc", "-f", "monospace:size=16", "-g", "50x20", "-e", "fend", NULL };
 static Sp scratchpads[] = {
     /* name          cmd  */
     {"spterm",      spcmd1},
@@ -51,7 +51,7 @@ static const Rule rules[] = {
      *    WM_NAME(STRING) = title
     */
     /*class,     instance,    title,          tags mask,isfloating,isterminal, noswallow, monitor, */
-    { "Gimp",    NULL,        NULL,           0,   0,         0,          0,        -1 },
+    { "Gimp",    NULL,        NULL,           0,        0,         0,          0,        -1 },
     { TERMCLASS, NULL,        NULL,           0,        0,         1,          0,        -1 },
     { TERMCLASS, NULL,        "zathura ",     0,        0,         1,          0,        -1 },
     { NULL,      NULL,        "Event Tester", 0,        0,         0,          1,        -1 },
@@ -186,7 +186,7 @@ static const Key keys[] = {
     { MODKEY|ShiftMask, XK_a,                     defaultgaps,     {0} },
     { MODKEY,           XK_s,                     togglesticky,    {0} },
     /* { MODKEY|ShiftMask,        XK_s,        spawn,        SHCMD("") }, */
-    { MODKEY,           XK_d,                     spawn,           {.v = (const char*[]){ "/home/qq/.local/bin/dmenu-launcher", NULL } } },
+    { MODKEY,           XK_d,                     spawn,           {.v = (const char*[]){ "dmenu_run", NULL } } },
     { MODKEY|ShiftMask, XK_d,                     spawn,           {.v = (const char*[]){ "passmenu", NULL } } },
     { MODKEY,           XK_f,                     togglefullscr,   {0} },
     { MODKEY|ShiftMask, XK_f,                     setlayout,       {.v = &layouts[8]} },

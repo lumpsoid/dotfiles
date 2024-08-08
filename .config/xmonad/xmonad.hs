@@ -25,8 +25,9 @@ myConfig = def
     , manageHook = myManageHook
     }  
   `additionalKeysP`
-    [ ("M-f"  , spawn "librewolf"                   ),
+    [ ("M-f"  , spawn "librewolf"),                   ),
     ("M-Enter", spawn "st"),
+    ("M-d", spawn "rofi -show run"),
     ]
 myLayout = tiled ||| Mirror tiled ||| Full ||| threeCol
   where

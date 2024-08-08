@@ -11,6 +11,7 @@
 #export 'GBM_BACKEND=nvidia-drm'
 #export '__GLX_VENDOR_LIBRARY_NAME=nvidia'
 
+# if already present, not spawn
 init_programm() {
   pgrep -x "$1" >/dev/null || riverctl spawn "$1"
 }
@@ -21,9 +22,10 @@ map_default() {
 #init_programm "pipewire"
 #init_programm "pipewire-pulse"
 #init_programm "wireplumber"
-#init_programm "lxpolkit"
-init_programm "dunst"
+init_programm "lxqt-policykit-agent"
+#init_programm "dunst"
 init_programm "waybar"
+#init_programm "yambar"
 init_programm "gnome-keyring-daemon"
 riverctl spawn "dbus-update-activation-environment DISPLAY XAUTHORITY WAYLAND_DISPLAY"
 #export $(dbus-launch)
@@ -54,7 +56,7 @@ riverctl map normal $mod N spawn "gio launch ~/.local/share/applications/obsidia
 # /usr/include/xkbcommon/xkbcommon-keysyms.h
 #riverctl map normal None 0xff61 spawn "sc-screenshootsh"
 riverctl map normal None Print spawn "sh -e ~/.local/bin/sc-screenshootsh"
-riverctl map normal None XF86Calculator spawn "$TERMINAL --app-id=bc-calc bc -q -l"
+riverctl map normal None XF86Calculator spawn "$TERMINAL --app-id=calc fend"
 riverctl rule-add float -app-id 'bc-calc'
 
 # $mod+Q to close the focused view
