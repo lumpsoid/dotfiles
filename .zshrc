@@ -10,6 +10,7 @@ antigen apply
 
 export PATH="$PATH":"$HOME/.local/bin"
 export PATH="$PATH":"$HOME/.pub-cache/bin"
+export PATH="$PATH":"$HOME/.cargo/bin"
 export PATH="$PATH":"/home/qq/Documents/programming/flutter/flutter/bin"
 
 # android development
@@ -23,10 +24,11 @@ export PATH="$PATH":"$ANDROID_HOME/platform-tools"
 #flutter web dev
 export CHROME_EXECUTABLE=/usr/bin/chromium
 
+alias mtk="python /home/qq/Documents/programming/narzo30unlock/pkgs/mtkclient/mtk"
+alias condd="conda deactivate"
+
 source /usr/share/fzf/completion.zsh
 source /usr/share/fzf/key-bindings.zsh
-
-alias ssh_pi='ssh -i ~/.ssh/pi-qq-home pi@192.168.1.19'
 
 export NNN_OPENER=/home/qq/.config/nnn/plugins/nuke
 export GUI=1
@@ -106,3 +108,7 @@ unset __conda_setup
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/.local/lib/mojo
 export PATH=$PATH:~/.modular/pkg/packages.modular.com_mojo/bin/
+
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
