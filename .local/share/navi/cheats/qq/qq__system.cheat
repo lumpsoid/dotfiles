@@ -1,0 +1,7 @@
+% system
+
+# log boot errors
+sudo journalctl -b --priority=3
+
+# view system stats
+btop

@@ -1,0 +1,4 @@
+% android
+
+# start adb server
+sudo adb start-server
