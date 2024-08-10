@@ -1,0 +1,8 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Name=zathura
+Comment=PDF Viewer
+Exec=zathura %F
+Terminal=true
+MimeType=application/pdf
