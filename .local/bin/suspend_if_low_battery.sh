@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# Define user and user ID for the X session
-X_USER="qq"
-X_USERID=$(id -u $X_USER)
-
-# Find the DBUS_SESSION_BUS_ADDRESS
-DBUS_ADDRESS=$(sudo -u $X_USER echo "$DBUS_SESSION_BUS_ADDRESS")
-echo "DBUS_ADDRESS: $DBUS_ADDRESS" >> "$LOGFILE"
-
 LOGFILE="/home/qq/crontab.log"
 
 # Check battery percentage
@@ -23,7 +15,7 @@ THRESHOLD_SUSPEND=30
 echo "$(date): Battery at $BATTERY_PERCENT%, status: $BATTERY_STATUS" >> "$LOGFILE"
 
 if [ "$BATTERY_PERCENT" -le "$THRESHOLD_NOTIFY" ] && [ "$BATTERY_STATUS" != "Charging" ]; then
-  sudo -u $X_USER DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS="$DBUS_ADDRESS" /usr/bin/notify-send "Battery at $BATTERY_PERCENT%" | sudo tee -a "$LOGFILE" 2>&1
+  XDG_RUNTIME_DIR=/run/user/$(id -u) /usr/bin/notify-send "Battery at $BATTERY_PERCENT%" | sudo tee -a "$LOGFILE" 2>&1
 fi
 
 # Check if battery percentage is less than or equal to threshold
