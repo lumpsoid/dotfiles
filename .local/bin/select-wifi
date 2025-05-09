@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+
+# Check if necessary tools are installed
+if ! command -v nmcli &> /dev/null; then
+    echo "Error: nmcli is not installed. Please install NetworkManager."
+    exit 1
+fi
+
+if ! command -v dmenu &> /dev/null; then
+    echo "Error: dmenu is not installed. Please install dmenu."
+    exit 1
+fi
+
+# Get a list of available Wi-Fi networks
+get_networks() {
+    # Rescan Wi-Fi networks
+    nmcli device wifi rescan &> /dev/null
+    
+    # Get list of available networks with signal strength and security info
+    # Format: SSID (SIGNAL%, SECURITY)
+    networks=$(nmcli -f SSID,SIGNAL,SECURITY device wifi list | tail -n +2 | 
+                sed 's/  \+/ /g' | 
+                awk '{
+                    security = $NF;
+                    signal = $(NF-1);
+                    ssid = "";
+                    for (i=1; i<NF-1; i++) ssid = ssid " " $i;
+                    gsub(/^ /, "", ssid);
+                    if (security == "--") security = "Open";
+                    print ssid " (" signal "%, " security ")"
+                }' | 
+                sort -r -n -k 2 -t "(" | uniq)
+    
+    # If no networks are found
+    if [ -z "$networks" ]; then
+        echo "No Wi-Fi networks found." | dmenu -p "Error:"
+        exit 1
+    fi
+    
+    echo "$networks"
+}
+
+# Connect to the selected network
+connect_to_network() {
+    local selection="$1"
+    
+    # Extract the SSID from the selection
+    ssid=$(echo "$selection" | sed 's/ ([0-9]\+%, .*)//')
+    
+    # Check if already connected to this network
+    current_network=$(nmcli -t -f NAME connection show --active | grep -v "lo" | head -n 1)
+    
+    if [ "$current_network" = "$ssid" ]; then
+        # Already connected, ask if user wants to reconnect
+        choice=$(echo -e "Yes\nNo" | dmenu -p "Already connected to $ssid. Reconnect?")
+        if [ "$choice" = "Yes" ]; then
+            nmcli connection down "$ssid" &> /dev/null
+            sleep 1
+        else
+            exit 0
+        fi
+    fi
+    
+    # Check if the network is already known
+    if nmcli -t connection show | grep -q "^$ssid:"; then
+        # Network is known, connect to it
+        notify-send "Wi-Fi" "Connecting to $ssid..."
+        nmcli connection up "$ssid" &> /dev/null
+        
+        # Check if connection was successful
+        if [ $? -eq 0 ]; then
+            notify-send "Wi-Fi" "Connected to $ssid"
+            exit 0
+        else
+            # Connection failed, may need password update
+            password=$(dmenu -p "Enter password for $ssid:" -P)
+            if [ -n "$password" ]; then
+                nmcli connection modify "$ssid" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$password" &> /dev/null
+                nmcli connection up "$ssid" &> /dev/null
+                
+                if [ $? -eq 0 ]; then
+                    notify-send "Wi-Fi" "Connected to $ssid"
+                else
+                    notify-send "Wi-Fi" "Failed to connect to $ssid"
+                fi
+            fi
+        fi
+    else
+        # New network, check if it requires a password
+        if echo "$selection" | grep -q "(.*%, Open)"; then
+            # Open network, no password needed
+            notify-send "Wi-Fi" "Connecting to $ssid..."
+            nmcli device wifi connect "$ssid" &> /dev/null
+        else
+            # Password protected network
+            password=$(dmenu -p "Enter password for $ssid:" -P)
+            if [ -n "$password" ]; then
+                notify-send "Wi-Fi" "Connecting to $ssid..."
+                nmcli device wifi connect "$ssid" password "$password" &> /dev/null
+                
+                if [ $? -eq 0 ]; then
+                    notify-send "Wi-Fi" "Connected to $ssid"
+                else
+                    notify-send "Wi-Fi" "Failed to connect to $ssid"
+                fi
+            fi
+        fi
+    fi
+}
+
+# Main execution
+networks=$(get_networks)
+selection=$(echo "$networks" | dmenu -l 10 -p "Select Wi-Fi:")
+
+# If user selected a network
+if [ -n "$selection" ]; then
+    connect_to_network "$selection"
+fi

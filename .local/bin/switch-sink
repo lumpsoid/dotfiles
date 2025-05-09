@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Script to switch PulseAudio/WirePlumber output sink using dmenu
+
+# Get list of available sinks
+sinks=$(pactl list short sinks | awk '{print $2}')
+
+# Use dmenu to select a sink
+selected_sink=$(echo "$sinks" | dmenu -i -p "Select Audio Output:")
+
+# If a sink is selected, switch to it
+if [ -n "$selected_sink" ]; then
+    # Set the default sink
+    pactl set-default-sink "$selected_sink"
+    
+    # Move all current audio streams to the new sink
+    pactl list short sink-inputs | while read stream_id stream_name; do
+        pactl move-sink-input "$stream_id" "$selected_sink"
+    done
+    
+    # Optional: notify the user
+    notify-send "Audio Output Changed" "Switched to sink: $selected_sink"
+fi

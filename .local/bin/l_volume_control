@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Script to manage audio using wpctl
+
+# Function to display usage
+usage() {
+   echo "Usage:"
+   echo "  $0 toggle                   # Toggle mute"
+   echo "  $0 change [+|-]percentage   # Change volume (e.g., +3%, -3%)"
+   exit 1
+}
+
+# Check if at least one argument is provided
+if [ $# -lt 1 ]; then
+   usage
+fi
+
+# Process commands
+case "$1" in
+   toggle)
+       wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+       ;;
+   change)
+       # Check if second argument exists
+       if [ -z "$2" ]; then
+           echo "Error: Volume change value is required"
+           usage
+       fi
+       
+       # Handle direct volume set
+       wpctl set-volume @DEFAULT_AUDIO_SINK@ "$2"
+       ;;
+   *)
+       echo "Error: Unknown command '$1'"
+       usage
+       ;;
+esac
+
+exit 0

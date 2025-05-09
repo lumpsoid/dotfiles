@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+
+# Bluetooth connection script using dmenu and bluetoothctl
+# Usage: ./sc-bt
+
+# Function to show notification
+notify() {
+    if command -v notify-send &>/dev/null; then
+        notify-send "Bluetooth" "$1"
+    else
+        echo "Bluetooth: $1"
+    fi
+}
+
+# Function to scan for new devices
+
+scan() {
+    notify "Scanning for devices... (5 seconds)"
+    
+    # Create a named pipe
+    FIFO=$(mktemp -u)
+    mkfifo $FIFO
+    
+    # Start bluetoothctl reading from the pipe
+    bluetoothctl <$FIFO &
+    BTPID=$!
+    
+    # Send commands with appropriate timing
+    {
+        echo "scan on"
+        sleep 6
+        echo "scan off"
+        echo "quit"
+    } > $FIFO
+    
+    # Wait for bluetoothctl to finish
+    wait $BTPID
+    
+    # Clean up
+    rm $FIFO
+}
+
+select_device() {
+    local device_type=$1
+    # Get list of devices
+    devices="$(bluetoothctl devices $device_type | sed 's/Device //;s/ /|/' | sort)"
+    
+    if [ -z "$devices" ]; then
+        notify "No devices found"
+        exit 0
+    fi
+    
+    # Let user select a device
+    echo -e "$devices" | dmenu -i -p "Select device:" | awk -F'|' '{print $1}'
+}
+
+select_device_with_retry() {
+    local device_type=$1
+    # Get list of devices
+    devices="$(bluetoothctl devices $device_type | sed 's/Device //;s/ /|/' | sort)"
+    
+    if [ -z "$devices" ]; then
+        notify "No devices found"
+        exit 0
+    fi
+    
+    # Add "retry" option to the list
+    devices="$devices\nretry"
+    
+    # Let user select a device
+    echo -e "$devices" | dmenu -i -p "Select device:" | awk -F'|' '{print $1}'
+}
+
+get_device_name() {
+    local selected=$1
+    echo "$selected" | awk -F'|' '{print $2}'
+}
+
+# Check if bluetoothctl is available
+if ! command -v bluetoothctl &>/dev/null; then
+    notify "Error: bluetoothctl not found. Please install bluez-utils"
+    exit 1
+fi
+
+# Check if dmenu is available
+if ! command -v dmenu &>/dev/null; then
+    notify "Error: dmenu not found. Please install dmenu"
+    exit 1
+fi
+
+# Check if Bluetooth controller is available
+if ! bluetoothctl show | grep -q "Powered: yes"; then
+    # Ask user if they want to power on Bluetooth
+    if [ "$(echo -e "No\nYes" | dmenu -i -p "Bluetooth is powered off. Turn it on?")" = "Yes" ]; then
+        bluetoothctl power on
+        sleep 1
+    else
+        notify "Bluetooth operation cancelled"
+        exit 0
+    fi
+fi
+
+# Select operation
+operation=$(echo -e "connect\ndisconnect\nscan\nremove" | dmenu -i -p "Bluetooth Operations:")
+
+case $operation in
+    "connect")
+        # Let user select a device
+        selected=$(select_device)
+        
+        if [ -z "$selected" ]; then
+            notify "No device selected"
+            exit 0
+        fi
+        
+        # Get device name
+        device_name=$(get_device_name "$selected")
+        
+        # Connect to the device
+        notify "Connecting to $device_name..."
+        
+        # Try to connect
+        if bluetoothctl connect "$selected" | grep -q "Connection successful"; then
+            notify "Connected to $device_name"
+        else
+            # If connection fails, try to pair first then connect
+            notify "Connection failed. Trying to pair..."
+            bluetoothctl pair "$selected"
+            sleep 2
+            if bluetoothctl connect "$selected" | grep -q "Connection successful"; then
+                notify "Connected to $device_name"
+            else
+                notify "Failed to connect to $device_name"
+            fi
+        fi
+        ;;
+        
+    "disconnect")
+        # Get list of connected devices
+        selected=$(select_device Connected)
+        
+        if [ -z "$selected" ]; then
+            notify "No device selected"
+            exit 0
+        fi
+        
+        # Get device name
+        device_name=$(get_device_name "$selected")
+        
+        # Disconnect from the device
+        if bluetoothctl disconnect "$selected"; then
+            notify "Disconnected from $device_name"
+        else
+            notify "Failed to disconnect from $device_name"
+        fi
+        ;;
+        
+    "scan")
+        while true; do
+            scan
+            # Get list of connected devices
+            selected=$(select_device_with_retry)
+            
+            if [ -z "$selected" ]; then
+                notify "No device selected"
+                exit 0
+            fi
+            
+            # Break loop if user selected an actual device (not retry)
+            if [ "$selected" != "retry" ]; then
+                break
+            fi
+            
+            notify "Scanning for devices..."
+        done
+
+        # Get device name
+        device_name=$(get_device_name "$selected")
+        
+        # Connect to the device
+        notify "Connecting to $device_name..."
+        
+        # Try to connect
+        if bluetoothctl connect "$selected" | grep -q "Connection successful"; then
+            notify "Connected to $device_name"
+        else
+            # If connection fails, try to pair first then connect
+            notify "Connection failed. Trying to pair..."
+            bluetoothctl pair "$selected"
+            sleep 2
+            if bluetoothctl connect "$selected" | grep -q "Connection successful"; then
+                notify "Connected to $device_name"
+            else
+                notify "Failed to connect to $device_name"
+            fi
+        fi
+        ;;
+        
+    "remove")
+        # Get list of paired devices
+        selected=$(select_device Paired)
+        
+        if [ -z "$selected" ]; then
+            notify "No device selected"
+            exit 0
+        fi
+        
+        # Get device name
+        device_name=$(get_device_name "$selected")
+        
+        # Confirm removal
+        confirm=$(echo -e "No\nYes" | dmenu -i -p "Remove pairing with $device_name?")
+        
+        if [ "$confirm" = "Yes" ]; then
+            # Remove the device
+            if bluetoothctl remove "$selected"; then
+                notify "Removed pairing with $device_name"
+            else
+                notify "Failed to remove pairing with $device_name"
+            fi
+        else
+            notify "Operation cancelled"
+        fi
+        ;;
+        
+    *)
+        notify "Operation cancelled"
+        exit 0
+        ;;
+esac

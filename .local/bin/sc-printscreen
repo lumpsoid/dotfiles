@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+#imagemagick package
+#xclip package
+
+if [ "$XDG_SESSION_TYPE" = "x11" ]; then
+    timestamp=$(date +%Y%m%d%H%M%S)
+    import "/tmp/$timestamp.png" &&
+    cat "/tmp/$timestamp.png" | xclip -selection clipboard -target image/png -i | notify-send 'screenshot done' &&
+    magick -quality 57 /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".avif &&
+    # cjxl /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".jxl -q 60 --num_threads=4 &&
+    rm /tmp/"$timestamp".png &&
+    exit;
+fi
+
+if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+    timestamp=$(date +%Y%m%d%H%M%S)
+    geometry=$(slurp)
+    if [ "$geometry" = "" ]; then
+      exit;
+    fi
+    grim -g "$geometry" /tmp/"$timestamp".png &&
+    wl-copy < /tmp/"$timestamp".png &&
+    #cjxl /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".jxl -q 60 --num_threads=4 &&
+    magick -quality 57 /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".avif &&
+    rm /tmp/"$timestamp".png &&
+    exit;
+fi
