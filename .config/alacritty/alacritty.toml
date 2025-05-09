@@ -1,0 +1,22 @@
+[selection]
+save_to_clipboard = true
+semantic_escape_chars = ''',│`|:"' ()[]{}<>	'''
+
+[font]
+size = 10.0
+
+[font.normal]
+family = "Cascadia Code"
+style = "Regular"
+
+[font.bold]
+family = "Cascadia Code"
+style = "Bold"
+
+[font.italic]
+family = "Cascadia Code"
+style = "Italic"
+
+[font.bold_italic]
+family = "Cascadia Code"
+style = "Bold Italic"
