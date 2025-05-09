@@ -1,0 +1,321 @@
+[[bar]]
+height = 30
+position = "top"
+#blocks_left = ["workspace", "R", "gap", "R"]
+blocks_center = ["L", "clock", "R"]
+blocks_right = [
+  "L",
+  "weather",
+  "volume",
+  "cpu",
+  "memory",
+  "network",
+  "screen_brightness",
+  "battery",
+  "R",
+]
+margin = { top = 20, bottom = 10 }
+background = "#00000000"
+
+[[default_block]]
+font = "Cascadia Code 12"
+background = "${base}"
+foreground = "${text}"
+
+[[block]]
+name = 'L'
+type = 'text'
+separator_type = 'left'
+separator_radius = 15.0
+
+[[block]]
+name = 'R'
+type = 'text'
+separator_type = 'right'
+separator_radius = 15.0
+
+[[block]]
+name = 'gap'
+type = 'text'
+separator_type = 'gap'
+value = " "
+background = "#00000000"
+
+[[block]]
+name = 'space'
+type = 'text'
+separator_type = 'gap'
+value = " "
+
+# Generic Persistent Bar Services
+[[command]]
+name = "stats"
+command = "oatbar-stats"
+
+#[[command]]
+#name = "desktop"
+#command = "oatbar-desktop 2>/dev/null"
+
+# Left Modules #####################################
+
+[[block]]
+name = 'workspace'
+type = 'enum'
+active = '${desktop:workspace.active}'
+variants = '${desktop:workspace.variants}'
+foreground = "${crust}"
+active_foreground = '${lavender}'
+padding = 20
+on_mouse_left = "oatbar-desktop $BLOCK_INDEX"
+
+[[command]]
+name = "player_info"
+command = 'echo "status"\n"title"\n"artist"\n"album"'
+line_names = ["status", "title", "artist", "album"]
+once = true
+
+[[block]]
+name = 'music'
+type = 'text'
+value = '${player_info:artist} - ${player_info:title}'
+output_format = '󰎇 ${value}'
+show_if_matches = [['${player_info:status}', 'playing']]
+pango_markup = false
+
+# Center Modules #####################################
+
+[[command]]
+name = "clock"
+command = "date '+%a %b %e %H:%M'"
+interval = 60
+
+[[block]]
+name = 'clock'
+type = 'text'
+value = '${clock:value}'
+foreground = '${text}'
+
+[[command]]
+name = "wttrbar"
+command = "sb-weather"
+interval = 3600
+
+[[block]]
+name = "weather"
+type = "text"
+value = "${wttrbar:value}"
+foreground = '${text}'
+
+# Right Modules #####################################
+
+[[var]]
+name = "get_volume_command"
+value = "pactl get-sink-volume @DEFAULT_SINK@ | awk 'NR==1 {print substr($5, 1, length($5)-1)}'"
+
+[[var]]
+name = "get_volume_and_set_command"
+value = "${get_volume_command} | xargs oatctl var set volume_info:value"
+
+[[command]]
+name = "volume_info"
+command = "pactl get-sink-volume @DEFAULT_SINK@ | awk 'NR==1 {print substr($5, 1, length($5)-1)}'"
+once = true
+
+[[block]]
+name = "volume"
+type = "number"
+number_type = "percent"
+value = "${volume_info:value}"
+foreground = "${sky}"
+#number_display = "text"
+padding = 20
+ramp = [["0", "🔇"], ["10", "🔈 ${value}"], ["70", "🔉  ${value}"], ["90", "🔊 ${value}"]]
+on_mouse_left = "l_volume_control toggle | ${get_volume_and_set_command}"
+on_scroll_up = "l_volume_control change 3%+ | ${get_volume_and_set_command}"
+on_scroll_down = "l_volume_control change 3%- | ${get_volume_and_set_command}"
+
+[[block]]
+name = "cpu"
+type = "text"
+value = " ${stats:cpu.percent|align: >2}%"
+foreground = "${sapphire}"
+padding = 20
+on_mouse_left = "st -e btop"
+
+[[block]]
+name = "memory"
+type = "text"
+value = " ${stats:memory.percent}%"
+foreground = "${blue}"
+padding = 20
+
+[[block]]
+name = "network"
+type = "text"
+value = "${stats:net.wlo1.full_text|def:down}"
+foreground = "${lavender}"
+padding = 10
+on_mouse_left = "st -e nmtui"
+
+[[command]]
+name = "screen_brightness"
+command = "brightnessctl g"
+once = true
+
+[[var]]
+name = "brightness_set_command"
+value = "oatctl var set screen_brightness:value"
+
+[[var]]
+name = "brightness_process_command"
+value = "awk 'NR==3 {start=index($0, \"(\") + 1; end=index($0, \"%\") - 1; print substr($0, start, end-start+1)}'"
+
+[[var]]
+name = "brightness_up_command"
+value = "brightnessctl s +5 | ${brightness_process_command} | xargs ${brightness_set_command}"
+
+[[var]]
+name = "brightness_down_command"
+value = "brightnessctl s 5- | ${brightness_process_command} | xargs ${brightness_set_command}"
+
+[[block]]
+name = "screen_brightness"
+type = "number"
+number_type = "percent"
+min_value = "0"
+max_value = "100"
+value = "${screen_brightness:value}"
+output_format = "${value}"
+foreground = "${subtext0}"
+on_scroll_up = "${brightness_up_command}"
+on_scroll_down = "${brightness_down_command}"
+ramp = [["0", "󰃞 ${value}"], ["50", "󰃟 ${value}"], ["90", "󰃠 ${value}"]]
+
+# Use this command to identify active sound sources when using mic:
+# find /proc/asound -name status -exec grep -v closed {} +i
+[[command]]
+name = "privacy_mic_status"
+command = "cat /proc/asound/card2/pcm0c/sub0/status | grep ':' | cut -d ':' -f 2- | sed 's/^ *//' | head -n 1"
+once = true
+
+# Displays when mic is being used
+[[block]]
+name = 'privacy_mic'
+type = 'text'
+value = ''
+output_format = ''
+show_if_matches = [['${privacy_mic_status:value}', 'RUNNING']]
+background = '${red}'
+foreground = '${mantle}'
+padding = 10
+
+# Use this command to identify active sound sources when using mic:
+# find /proc/asound -name status -exec grep -v closed {} +i
+[[command]]
+name = "privacy_webcam_status"
+command = "fuser /dev/video0 >/dev/null 2>&1 && echo 'yes' || echo 'no'"
+once = true
+
+# Displays when webcam is being used
+[[block]]
+name = 'privacy_webcam'
+type = 'text'
+value = ''
+output_format = '󰖠'
+show_if_matches = [['${privacy_webcam_status:value}', 'yes']]
+background = '${red}'
+foreground = '${mantle}'
+padding = 10
+
+[[command]]
+name = "battery_info"
+command = "sb-battery"
+interval = 60
+
+[[block]]
+name = 'battery'
+type = 'text'
+value = '${battery_info:value}'
+
+# Cattpuccin Frappe
+[[var]]
+name = "base"
+value = "#303446"
+[[var]]
+name = "mantle"
+value = "#292c3c"
+[[var]]
+name = "crust"
+value = "#232634"
+[[var]]
+name = "text"
+value = "#c6d0f5"
+[[var]]
+name = "subtext0"
+value = "#a5adce"
+[[var]]
+name = "subtext1"
+value = "#b5bfe2"
+[[var]]
+name = "surface0"
+value = "#414559"
+[[var]]
+name = "surface1"
+value = "#51576d"
+[[var]]
+name = "surface2"
+value = "#626880"
+[[var]]
+name = "overlay0"
+value = "#737994"
+[[var]]
+name = "overlay1"
+value = "#838ba7"
+[[var]]
+name = "overlay2"
+value = "#949cbb"
+[[var]]
+name = "blue"
+value = "#8caaee"
+[[var]]
+name = "lavender"
+value = "#babbf1"
+[[var]]
+name = "sapphire"
+value = "#85c1dc"
+[[var]]
+name = "sky"
+value = "#99d1db"
+[[var]]
+name = "teal"
+value = "#81c8be"
+[[var]]
+name = "green"
+value = "#a6d189"
+[[var]]
+name = "yellow"
+value = "#e5c890"
+[[var]]
+name = "peach"
+value = "#ef9f76"
+[[var]]
+name = "maroon"
+value = "#ea999c"
+[[var]]
+name = "red"
+value = "#e78284"
+[[var]]
+name = "mauve"
+value = "#ca9ee6"
+[[var]]
+name = "pink"
+value = "#f4b8e4"
+[[var]]
+name = "flamingo"
+value = "#eebebe"
+[[var]]
+name = "rosewater"
+value = "#f2d5cf"
+[[var]]
+name = "transparent"
+value = "#FF00000"
