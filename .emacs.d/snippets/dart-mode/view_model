@@ -1,0 +1,29 @@
+# -*- mode: snippet -*-
+# name: ViewModel
+# key: vm
+# group: flutter
+# --
+sealed class ${1:Name}Action {
+    const $1Action();
+}
+
+sealed class $1SideEffect {
+    const $1SideEffect();
+}
+
+class $1State extends ChangeNotifier {
+    $2
+}
+
+class $1ViewModel {
+    final _state = $1State();
+    $1State get state => _state;
+
+    final sideEffectNotifier = ValueNotifier<$1SideEffect?>(null);
+    $1SideEffect? get sideEffect => sideEffectNotifier.value;
+
+    Future<void> init() async {}
+    void dispose() {}
+
+    Future<void> onAction($1Action action) async {}
+}

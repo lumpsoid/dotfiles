@@ -1,0 +1,43 @@
+* Org Mode Configuration
+** Org Files Setup
+Configure the main org files, including refile.org:
+
+#+begin_src elisp
+  ;; Set up org directory and files
+  (setq org-directory "~/org")
+  (setq org-default-notes-file (concat org-directory "/refile.org"))
+
+  ;; Define agenda files
+  (setq org-agenda-files (list org-directory))
+#+end_src
+
+** Org Capture Templates
+Configure templates for quick note and TODO entry:
+
+#+begin_src elisp
+  (setq org-capture-templates
+        '(("t" "Todo" entry
+           (file+headline org-default-notes-file "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("n" "Note" entry
+           (file+headline org-default-notes-file "Notes")
+           "* %? :NOTE:\n  %U\n  %i\n  %a")))
+#+end_src
+
+** Org Refile Configuration
+Configure where items can be refiled:
+
+#+begin_src elisp
+  ;; Targets include refile.org and any file in org-agenda-files
+  (setq org-refile-targets '((nil :maxlevel . 9)
+                             (org-agenda-files :maxlevel . 9)))
+  
+  ;; Use full outline paths for refile targets
+  (setq org-refile-use-outline-path 'file)
+  
+  ;; Allow creating new nodes when refiling
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+  
+  ;; Make refile interface show full paths
+  (setq org-outline-path-complete-in-steps nil)
+#+end_src
