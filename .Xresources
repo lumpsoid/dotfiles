@@ -1,5 +1,5 @@
-xterm*faceName: MesloLGS NF:style=Regular:pixelsize=18
-*.font: MesloLGS NF:pixelsize=18
+xterm*faceName: Cascadia Code:style=Regular:pixelsize=18
+*.font: Cascadia Code:pixelsize=18
 *.foreground: #F8F8F2
 *.background: #282A36
 *.color0:     #000000
