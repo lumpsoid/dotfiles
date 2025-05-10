@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Get release URL from first argument or show error
+if [ $# -lt 1 ]; then
+    echo "Error: Flutter release URL is required as the first argument"
+    echo "Usage: $0 <flutter_release_url>"
+    echo "Example: $0 https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.29.3-stable.tar.xz"
+    exit 1
+fi
+
+FLUTTER_RELEASE_URL="$1"
+FLUTTER_ARCHIVE=$(basename "$FLUTTER_RELEASE_URL")
+
+# Set up XDG directories with fallbacks
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# Flutter/Dart paths
+FLUTTER_ROOT="${XDG_DATA_HOME}/flutter"
+PUB_CACHE="${XDG_CACHE_HOME}/pub"
+DART_USER_HOME="${XDG_DATA_HOME}/flutter/dart"
+FLUTTER_CONFIG="${XDG_CONFIG_HOME}/flutter"
+ANALYZER_CACHE="${XDG_CACHE_HOME}/dart/analyzer_server"
+
+# Check if Flutter is already installed
+if [ -d "$FLUTTER_ROOT" ]; then
+    echo "Error: Flutter installation already exists at $FLUTTER_ROOT"
+    echo "To reinstall, manually remove this directory first"
+    exit 1
+fi
+
+# Create directories if they don't exist
+mkdir -p "${XDG_DATA_HOME}"
+mkdir -p "${XDG_CACHE_HOME}/dart"
+mkdir -p "${XDG_CONFIG_HOME}/flutter"
+mkdir -p "${PUB_CACHE}"
+mkdir -p "${DART_USER_HOME}"
+mkdir -p "${ANALYZER_CACHE}"
+
+# Download Flutter SDK
+TEMP_DIR=$(mktemp -d)
+echo "Downloading Flutter SDK from ${FLUTTER_RELEASE_URL}..."
+curl -L "$FLUTTER_RELEASE_URL" -o "${TEMP_DIR}/${FLUTTER_ARCHIVE}" || {
+    echo "Error: Failed to download Flutter SDK"
+    rm -rf "$TEMP_DIR"
+    exit 1
+}
+
+# Extract the SDK
+echo "Extracting Flutter SDK to ${FLUTTER_ROOT}..."
+tar -xf "${TEMP_DIR}/${FLUTTER_ARCHIVE}" -C "${XDG_DATA_HOME}" || {
+    echo "Error: Failed to extract Flutter SDK"
+    rm -rf "$TEMP_DIR"
+    exit 1
+}
+
+# Clean up
+rm -rf "$TEMP_DIR"
+
+# Set up environment variables
+echo ""
+echo "Flutter SDK installed successfully!"
+echo ""
+echo "Add these lines to your shell profile (.bashrc, .zshrc, etc.):"
+echo "---------------------------------------------------------------"
+echo "# Flutter/Dart XDG setup"
+echo "export FLUTTER_ROOT=\"\${XDG_DATA_HOME}/flutter\""
+echo "export PUB_CACHE=\"\${XDG_CACHE_HOME}/pub\""
+echo "export DART_USER_HOME=\"\${XDG_DATA_HOME}/flutter/dart\""
+echo "export FLUTTER_CONFIG=\"\${XDG_CONFIG_HOME}/flutter\""
+echo "export ANALYZER_DIAGNOSTIC_SERVER_CACHE=\"\${XDG_CACHE_HOME}/dart/analyzer_server\""
+echo "export PATH=\"\${FLUTTER_ROOT}/bin:\${PUB_CACHE}/bin:\$PATH\""
+echo "---------------------------------------------------------------"
+echo ""
+echo "To verify the installation, run:"
+echo "source <your-shell-profile>"
+echo "flutter --version"
+
+"$FLUTTER_ROOT/bin/flutter" doctor

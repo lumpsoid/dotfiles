@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# Set variables
+ANDROID_DEV_PAGE="https://developer.android.com/studio#command-tools"
+TEMP_DIR=$(mktemp -d)
+
+# Download the webpage
+echo "Finding latest Android command line tools URL..."
+curl -s "$ANDROID_DEV_PAGE" > "$TEMP_DIR/android_page.html"
+
+# Extract the Linux command line tools URL using grep
+# This pattern looks for a link to commandlinetools-linux with _latest.zip
+CMDLINE_TOOLS_URL=$(grep -o 'https://dl\.google\.com/android/repository/commandlinetools-linux-[0-9]\+_latest\.zip' "$TEMP_DIR/android_page.html" | head -1)
+
+if [ -z "$CMDLINE_TOOLS_URL" ]; then
+  echo "Error: Could not find command line tools URL"
+  exit 1
+fi
+
+echo "Found URL: $CMDLINE_TOOLS_URL"
+
+ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/android/sdk}"
+echo "Using Android SDK at: $ANDROID_SDK_ROOT"
+
+# Create SDK directory if it doesn't exist
+mkdir -p "$ANDROID_SDK_ROOT"
+
+# Download command line tools using curl
+echo "Downloading Android command line tools..."
+curl -s -L "$CMDLINE_TOOLS_URL" -o "$TEMP_DIR/cmdline-tools.zip"
+
+# Extract to proper location with the expected directory structure
+mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+unzip -q "$TEMP_DIR/cmdline-tools.zip" -d "$TEMP_DIR"
+mv "$TEMP_DIR/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+
+# Set up environment variables
+echo 'add to your path'
+echo 'export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"'
+
+# Install basic Android SDK packages
+echo 'Accepting adnroid sdk licenses'
+yes | sdkmanager --licenses || {
+  echo "Error while bootstraping"
+}
+
+echo "Installing Android SDK packages..."
+sdkmanager "platform-tools" "emulator" "platforms;android-35" "build-tools;36.0.0"
+
+# Clean up
+rm -rf "$TEMP_DIR"
+
+echo "Android SDK setup complete at $ANDROID_SDK_ROOT"
