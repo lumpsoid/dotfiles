@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+LOG_FILE="$HOME/repos/logs/backup_$(date +%Y%m%d_%H%M%S).log"
+mkdir -p "$(dirname "$LOG_FILE")"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "===== Starting backup of all repositories: $(date) ====="
+
+# Create a global backup timestamp for consistent stash names
+BACKUP_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="$HOME/backups/repos_backup_$BACKUP_TIMESTAMP"
+mkdir -p "$BACKUP_DIR"
+
+# Create manifest of all repositories with their remote URLs
+MANIFEST_FILE="$BACKUP_DIR/manifest.txt"
+echo "# Repository Manifest - $(date)" > "$MANIFEST_FILE"
+echo "# BACKUP_TIMESTAMP=$BACKUP_TIMESTAMP" >> "$MANIFEST_FILE"
+
+find "$HOME/repos" -type d -name ".git" | while read -r git_dir; do
+    repo_dir=$(dirname "$git_dir")
+    relative_path=${repo_dir#$HOME/repos/}
+    
+    echo "PROCESSING: $relative_path"
+    
+    # Use pushd to preserve directory stack
+    pushd "$repo_dir" > /dev/null || { 
+        echo "  ERROR: Cannot access $repo_dir"; 
+        continue; 
+    }
+    
+    # Record repository info
+    remote_url=$(git remote get-url origin 2>/dev/null || echo "No remote")
+    current_branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached")
+    echo "$relative_path $remote_url $current_branch" >> "$MANIFEST_FILE"
+    
+    # Stash uncommitted changes with global timestamp
+    if ! git diff --quiet HEAD || git ls-files --others --exclude-standard | grep -q .; then
+        echo "  STASHING: Uncommitted changes"
+        git stash push -m "Backup stash $BACKUP_TIMESTAMP"
+        echo "  STASHED: Changes saved with reference: Backup stash $BACKUP_TIMESTAMP"
+    else
+        echo "  CLEAN: No changes to stash"
+    fi
+    
+    # Create target directory structure
+    target_dir="$BACKUP_DIR/repos/$relative_path"
+    mkdir -p "$(dirname "$target_dir")"
+    
+    # Copy only the .git directory
+    echo "  BACKING UP: .git directory"
+    cp -r ".git" "$target_dir/"
+    
+    popd > /dev/null
+    echo "  COMPLETED: $relative_path"
+    echo "----------------------------------------"
+done
+
+# Also backup active symlinks structure
+if [ -d "$HOME/repos/active" ]; then
+    echo "BACKING UP: Active repositories symlink structure"
+    mkdir -p "$BACKUP_DIR/repos/active"
+    
+    find "$HOME/repos/active" -type l | while read -r symlink; do
+        symlink_name=$(basename "$symlink")
+        target=$(readlink -f "$symlink")
+        relative_target=${target#$HOME/repos/}
+        
+        echo "$symlink_name -> $relative_target" >> "$BACKUP_DIR/repos/active/links.txt"
+    done
+fi
+
+# Archive the backup directory for easier transport
+echo "CREATING: Final archive of backup directory"
+FINAL_ARCHIVE="$HOME/backups/repos_backup_$BACKUP_TIMESTAMP.tar.gz"
+tar -czf "$FINAL_ARCHIVE" -C "$(dirname "$BACKUP_DIR")" "$(basename "$BACKUP_DIR")"
+
+if [ $? -eq 0 ]; then
+    backup_size=$(du -h "$FINAL_ARCHIVE" | cut -f1)
+    echo "SUCCESS: Backup completed and archived (Size: $backup_size)"
+    echo "LOCATION: $FINAL_ARCHIVE"
+
+    rm -rf "$BACKUP_DIR"
+else
+    echo "ERROR: Final archive creation failed"
+fi
+
+echo "===== Finished backup of all repositories: $(date) ====="

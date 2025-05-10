@@ -1,0 +1,124 @@
+#!/bin/bash
+
+LOG_FILE="/tmp/restore_$(date +%Y%m%d_%H%M%S).log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "===== Starting restore of repositories: $(date) ====="
+
+if [ $# -eq 0 ]; then
+    echo "ERROR: No backup file specified"
+    echo "USAGE: $0 /path/to/backup.tar.gz"
+    exit 1
+fi
+
+BACKUP_FILE="$1"
+APPLY_STASH=${2:-false} # Optional parameter to apply stashed changes (default: false)
+
+if [ ! -f "$BACKUP_FILE" ]; then
+    echo "ERROR: Backup file not found: $BACKUP_FILE"
+    exit 1
+fi
+
+TEMP_DIR=$(mktemp -d)
+echo "EXTRACTING: Backup to temporary directory"
+
+tar -xzf "$BACKUP_FILE" -C "$TEMP_DIR"
+
+# Find the actual backup directory (one level deep)
+BACKUP_DIR=$(find "$TEMP_DIR" -maxdepth 1 -type d -name "repos_backup_*" | head -1)
+
+if [ ! -d "$BACKUP_DIR" ]; then
+    echo "ERROR: Backup directory not found in archive"
+    exit 1
+fi
+
+if [ ! -d "$BACKUP_DIR/repos" ]; then
+    echo "ERROR: Repos directory not found in backup"
+    exit 1
+fi
+
+# Handle existing repos directory
+if [ -d "$HOME/repos" ]; then
+    echo "WARNING: Existing repos directory found"
+    read -p "Overwrite? (y/n): " choice
+    
+    if [ "$choice" != "y" ]; then
+        echo "CANCELED: Restore operation aborted"
+        exit 0
+    fi
+    
+    echo "BACKING UP: Existing repos to $HOME/repos.bak.$(date +%Y%m%d_%H%M%S)"
+    mv "$HOME/repos" "$HOME/repos.bak.$(date +%Y%m%d_%H%M%S)"
+fi
+
+# Create base directory structure
+mkdir -p "$HOME/repos"
+
+# Process the manifest to restore repositories
+MANIFEST_FILE="$BACKUP_DIR/manifest.txt"
+if [ -f "$MANIFEST_FILE" ]; then
+    echo "PROCESSING: Repository manifest"
+    
+    # Extract backup timestamp if available
+    BACKUP_TIMESTAMP=$(grep "BACKUP_TIMESTAMP" "$MANIFEST_FILE" | cut -d= -f2)
+    echo "BACKUP TIMESTAMP: $BACKUP_TIMESTAMP"
+    
+    grep -v "^#" "$MANIFEST_FILE" | while read -r repo_path remote_url branch; do
+        [ -z "$repo_path" ] && continue
+        
+        echo "RESTORING: $repo_path"
+        
+        # Create directory structure
+        mkdir -p "$HOME/repos/$repo_path"
+        
+        # Copy the .git directory
+        if [ -d "$BACKUP_DIR/repos/$repo_path/.git" ]; then
+            cp -r "$BACKUP_DIR/repos/$repo_path/.git" "$HOME/repos/$repo_path/"
+            
+            # Reset the working directory to match HEAD
+            pushd "$HOME/repos/$repo_path" > /dev/null || continue
+            echo "  RESETTING: Working directory to HEAD"
+            git reset --hard HEAD
+            
+            # Configure remote if needed
+            if [ "$remote_url" != "No" ] && [ "$remote_url" != "No remote" ]; then
+                echo "  CONFIGURING: Remote URL"
+                git remote set-url origin "$remote_url" 2>/dev/null || 
+                git remote add origin "$remote_url"
+            fi
+            
+            # Apply stashed changes if requested
+            if [ "$APPLY_STASH" = "true" ] && [ -n "$BACKUP_TIMESTAMP" ]; then
+                if git stash list | grep -q "Backup stash $BACKUP_TIMESTAMP"; then
+                    echo "  APPLYING: Stashed changes from backup"
+                    git stash apply stash@{$(git stash list | grep -n "Backup stash $BACKUP_TIMESTAMP" | cut -d: -f1 | head -1)}
+                fi
+            fi
+            
+            popd > /dev/null
+        else
+            echo "  ERROR: .git directory not found for $repo_path"
+        fi
+    done
+fi
+
+# Restore active symlinks if available
+if [ -f "$BACKUP_DIR/repos/active/links.txt" ]; then
+    echo "RESTORING: Active repository symlinks"
+    mkdir -p "$HOME/repos/active"
+    
+    while read -r line; do
+        link_name=$(echo "$line" | cut -d ' ' -f1)
+        target_path=$(echo "$line" | cut -d ' ' -f3)
+        
+        echo "  LINKING: $link_name -> $target_path"
+        ln -sf "../$target_path" "$HOME/repos/active/$link_name"
+    done < "$BACKUP_DIR/repos/active/links.txt"
+fi
+
+echo "CLEANUP: Removing temporary files"
+rm -rf "$TEMP_DIR"
+
+echo "===== Repository restore completed: $(date) ====="
+echo "NOTE: To apply stashed changes, run this script again with the 'true' parameter:"
+echo "      $0 $BACKUP_FILE true"

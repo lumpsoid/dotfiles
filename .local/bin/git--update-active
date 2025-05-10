@@ -1,0 +1,55 @@
+#!/bin/bash
+
+LOG_FILE="$HOME/repos/logs/update_active_$(date +%Y%m%d_%H%M%S).log"
+mkdir -p "$(dirname "$LOG_FILE")"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "===== Starting update of active repositories: $(date) ====="
+
+pushd "$HOME/repos/active" > /dev/null || { 
+    echo "ERROR: Active directory not found"; 
+    exit 1; 
+}
+
+for repo_link in */; do
+    repo_link=${repo_link%/}
+    
+    if [ ! -L "$repo_link" ]; then
+        echo "SKIPPING: $repo_link (not a symlink)"
+        continue
+    }
+    
+    repo_path=$(readlink -f "$repo_link")
+    echo "PROCESSING: $repo_link -> $repo_path"
+    
+    if [ -d "$repo_path/.git" ]; then
+        echo "  ENTERING: $repo_path"
+        pushd "$repo_path" > /dev/null || { 
+            echo "  ERROR: Cannot access $repo_path"; 
+            continue; 
+        }
+        
+        current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+        echo "  BRANCH: $current_branch"
+        
+        echo "  FETCHING: Updates from remote"
+        git fetch --all
+        
+        if git status -uno | grep -q "Your branch is behind"; then
+            echo "  UPDATING: Pulling new changes"
+            git pull
+            echo "  SUCCESS: Repository updated"
+        else
+            echo "  OK: Already up to date"
+        fi
+        
+        popd > /dev/null
+    else
+        echo "  ERROR: Not a valid git repository"
+    fi
+    
+    echo "----------------------------------------"
+done
+
+popd > /dev/null
+echo "===== Finished updating active repositories: $(date) ====="
