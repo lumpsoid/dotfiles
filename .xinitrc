@@ -26,6 +26,9 @@ fi
 
 xset r rate 300 50
 
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ssh_git
+
 #mailsync &
 #remind -z -k'gxmessage -title "reminder" %s &' ~/.config/remind/uni.rem & 
 #lxpolkit &
