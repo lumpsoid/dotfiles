@@ -29,16 +29,6 @@ xset r rate 300 50
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ssh_git
 
-#mailsync &
-#remind -z -k'gxmessage -title "reminder" %s &' ~/.config/remind/uni.rem & 
-#lxpolkit &
-#picom &
-#/usr/bin/pipewire &
-#/usr/bin/pipewire-pulse &
-#/usr/bin/wireplumber &
-#autokey-gtk &
-wired -r &
 dunst &
-dwmblocks &
-#xmobar &
-exec dwm
+
+exec awesome
