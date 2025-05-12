@@ -1,7 +1,7 @@
 [[bar]]
 height = 30
 position = "top"
-#blocks_left = ["workspace", "R", "gap", "R"]
+blocks_left = ["workspace", "R"]
 blocks_center = ["L", "clock", "R"]
 blocks_right = [
   "L",
@@ -52,9 +52,9 @@ value = " "
 name = "stats"
 command = "oatbar-stats"
 
-#[[command]]
-#name = "desktop"
-#command = "oatbar-desktop 2>/dev/null"
+[[command]]
+name = "desktop"
+command = "oatbar-desktop 2>/dev/null"
 
 # Left Modules #####################################
 
@@ -130,9 +130,9 @@ foreground = "${sky}"
 #number_display = "text"
 padding = 20
 ramp = [["0", "🔇"], ["10", "🔈 ${value}"], ["70", "🔉  ${value}"], ["90", "🔊 ${value}"]]
-on_mouse_left = "l_volume_control toggle | ${get_volume_and_set_command}"
-on_scroll_up = "l_volume_control change 3%+ | ${get_volume_and_set_command}"
-on_scroll_down = "l_volume_control change 3%- | ${get_volume_and_set_command}"
+on_mouse_left = "l--volume-control toggle | ${get_volume_and_set_command}"
+on_scroll_up = "l--volume-control change 3%+ | ${get_volume_and_set_command}"
+on_scroll_down = "l--volume-control change 3%- | ${get_volume_and_set_command}"
 
 [[block]]
 name = "cpu"
@@ -159,7 +159,7 @@ on_mouse_left = "st -e nmtui"
 
 [[command]]
 name = "screen_brightness"
-command = "brightnessctl g"
+command = "brightnessctl i | awk 'NR==3 {start=index($0, \"(\") + 1; end=index($0, \"%\") - 1; print substr($0, start, end-start+1)}'"
 once = true
 
 [[var]]
