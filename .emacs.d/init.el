@@ -158,7 +158,10 @@ This function is intended for frame creation hooks."
   (setq package-list
         (append
          ;; theme
-         '(;;dracula-theme
+         '(f
+           avy
+
+           ;;dracula-theme
            ;; completion
            vertico
            consult
@@ -167,7 +170,7 @@ This function is intended for frame creation hooks."
            ;; org
 		   org-bullets
            ;; programming
-           yasnippet           
+           yasnippet         
            ;; lsp
            ;;lsp-mode
            ;;lsp-ui
@@ -177,11 +180,14 @@ This function is intended for frame creation hooks."
            magit
            denote
 		   which-key
-           hydra)
+           hydra
+           markdown-mode)
          (unless (eq system-type 'windows-nt)
            '(telega
              dart-mode
-             elixir-mode))))
+             elixir-mode
+             rust-mode
+             lua-mode))))
   
   ;; Install packages if not already installed
   (dolist (package package-list)
@@ -515,7 +521,7 @@ This function is intended for frame creation hooks."
     ;; To enable logging, you can add the following line
     (lspce-enable-logging)
     ;; You can enable/disable logging on the fly by calling `lspce-enable-logging' or `lspce-disable-logging'.
-  
+    
     (define-key lspce-mode-map (kbd "C-c l h") 'lspce-help-at-point)
     (define-key lspce-mode-map (kbd "C-c l r") 'lspce-rename)
     (define-key lspce-mode-map (kbd "C-c l a") 'lspce-code-actions)
@@ -531,7 +537,7 @@ This function is intended for frame creation hooks."
       (lspce--add-option "outline" t options)
       (lspce--add-option "flutterOutline" t options)
       (lspce--add-option "allowOpenUri" t options)
-    
+      
       ;; Client workspace configuration
       (let ((dart-config (make-hash-table :test #'equal)))
         (lspce--add-option "analysisExcludedFolders" [] dart-config)
@@ -545,7 +551,7 @@ This function is intended for frame creation hooks."
         (lspce--add-option "documentation" "full" dart-config)
         (lspce--add-option "includeDependenciesInWorkspaceSymbols" t dart-config)
         (puthash "dart" dart-config options))
-    
+      
       options))
 
   (defun lspce-elixir-initializationOptions ()
@@ -559,17 +565,17 @@ This function is intended for frame creation hooks."
       (lspce--add-option "autoInsertRequiredAlias" t options)
       (lspce--add-option "signatureAfterComplete" t options)
       (lspce--add-option "enableTestLenses" t options)
-    
+      
       ;; Set Mix environment if needed
       ;;(lspce--add-option "mixEnv" "dev" options)
-    
+      
       ;; Empty array for additional watched extensions
       (lspce--add-option "additionalWatchedExtensions" [] options)
-    
+      
       ;; Dialyzer format and warning options
       (lspce--add-option "dialyzerFormat" "dialyxir" options)
       ;;(lspce--add-option "dialyzerWarnOpts" (make-hash-table :test #'equal) options)
-    
+      
       options))
 
   ;; modify `lspce-server-programs' to add or change a lsp server, see document
