@@ -1,5 +1,14 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local naughty = require("naughty")
+
+function dump_table(t)
+    local result = ""
+    for k, v in pairs(t) do
+        result = result .. k .. ": " .. tostring(v) .. "\n"
+    end
+    return result
+end
 
 local function get_icon(level)
     level = tonumber(level or 0)
@@ -17,7 +26,7 @@ local function colorize_text(text, color)
     return string.format('<span color="%s">%s</span>', color, text)
 end
 
-local function new()
+local function new(buttons)
     local current = {
         level = 50
     }
@@ -45,13 +54,15 @@ local function new()
     local widget = wibox.widget({
         icon, 
         percentage,
+        buttons = buttons,
         spacing = beautiful.spacing or 4,
         layout = wibox.layout.fixed.horizontal,
     })
     
     -- Update widget function
-    local function update_widget(level)
-        if current.level ~= level then
+    local function update_widget(widget, level)
+       
+       if current.level ~= level then
             current.level = level
             
             icon.markup = colorize_text(get_icon(level), beautiful.fg_normal)
@@ -60,7 +71,7 @@ local function new()
     end
     
     -- Connect to the update signal
-    widget:connect_signal("update", update_widget)
+    widget:connect_signal("brightness::update", update_widget)
     
     return widget
 end

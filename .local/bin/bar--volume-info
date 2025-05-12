@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+current_vol=$(pactl get-sink-volume @DEFAULT_SINK@ | awk 'NR==1 {print substr($5, 1, length($5)-1)}')
+mute_status=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+printf "$current_vol\n$mute_status"

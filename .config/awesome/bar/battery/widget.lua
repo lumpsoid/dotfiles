@@ -1,13 +1,14 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local naughty = require("naughty")
 
 local ICONS = {
     charging = "⚡",
-    full = "",
-    high = "",
-    medium = "",
-    low = "",
-    critical = "",
+    full = "■",
+    high = "▣",
+    medium = "▢",
+    low = "▭",
+    critical = "□",
 }
 
 local function get_icon(charge, status)
@@ -66,7 +67,7 @@ local function new()
     })
     
     -- Update widget function
-    local function update_widget(charge, status)
+    local function update_widget(widget, charge, status)
         if current.charge ~= charge or current.status ~= status then
             current.charge = charge
             current.status = status
@@ -85,7 +86,7 @@ local function new()
     end
     
     -- Connect to the update signal
-    widget:connect_signal("update", update_widget)
+    widget:connect_signal("battery::update", update_widget)
     
     return widget
 end

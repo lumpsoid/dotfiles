@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+bat=$1
+
+if test -z $bat; then
+  printf "0\nFirst argument is empty"
+  exit 0
+fi
+
+capacity=$(cat "/sys/class/power_supply/$1/capacity")
+status=$(cat "/sys/class/power_supply/$1/status")
+
+printf "$capacity\n$status"

@@ -1,13 +1,14 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
+local naughty = require("naughty")
 
 local M = {}
 
 local ICONS = {
-    high = "墳",
-    medium = "奔",
-    low = "奄",
-    mute = "婢"
+    high = "🔊",
+    medium = "🔉",
+    low = "🔈",
+    mute = "🔇"
 }
 
 local function get_icon(level, status)
@@ -28,7 +29,7 @@ local function colorize_text(text, color)
     return string.format('<span color="%s">%s</span>', color, text)
 end
 
-function M.new()
+function M.new(buttons)
     local current = {
         level = 50,
         status = "on"
@@ -57,12 +58,13 @@ function M.new()
     local widget = wibox.widget({
         icon, 
         percentage,
+        buttons = buttons,
         spacing = beautiful.spacing or 4,
         layout = wibox.layout.fixed.horizontal,
     })
     
     -- Update widget function
-    local function update_widget(level, status)
+    local function update_widget(widget, level, status)
         if current.level ~= level or current.status ~= status then
             current.level = level
             current.status = status
@@ -73,7 +75,7 @@ function M.new()
     end
     
     -- Connect to the update signal
-    widget:connect_signal("update", update_widget)
+    widget:connect_signal("volume::update", update_widget)
     
     return widget
 end

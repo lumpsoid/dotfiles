@@ -106,7 +106,6 @@ function M.create_wibar(s, widgets)
     -- Create wibar
     local wibar = awful.wibar({
         height = beautiful.bar_height,
-        type = "dock",
         bg = "#00000000", -- Transparent background
         position = "top",
         screen = s,

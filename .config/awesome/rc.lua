@@ -145,9 +145,20 @@ local controllers = {
 
 -- Create widgets
 local bar_widgets = {
-    volume = bar.volume.createWidget(),
-    battery = bar.battery.createWidget(),
-    brightness = bar.brightness.createWidget()
+   volume = bar.volume.createWidget(
+      {
+         awful.button({ }, 1, function(t) controllers.volume.toggle() end),
+         awful.button({ }, 4, function(t) controllers.volume.decrease() end),
+         awful.button({ }, 5, function(t) controllers.volume.increase() end),
+      }
+   ),
+   battery = bar.battery.createWidget(),
+   brightness = bar.brightness.createWidget(
+      {
+         awful.button({ }, 4, function(t) controllers.brightness.decrease() end),
+         awful.button({ }, 5, function(t) controllers.brightness.increase() end),
+      }
+   )
 }
 
 -- Connect controllers to widgets
@@ -157,7 +168,7 @@ controllers.brightness.set_widget(bar_widgets.brightness)
 
 -- Initialize widgets with current values
 controllers.volume.get_level(function(level, status)
-    bar_widgets.volume:emit_signal("update", level, status)
+      bar_widgets.volume:emit_signal("update", level, status)
 end)
 
 controllers.brightness.get_level(function(level)
@@ -212,68 +223,6 @@ screen.connect_signal(
     -- Create wibar for this screen
     s.mywibox = bar.create_wibar(s, screen_widgets)
 end)
---require("wibar-default")
--- screen.connect_signal(
---    "request::desktop_decoration",
---    function(s)
-
---     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
---       -- Create a rounded 3-part bar (left, middle, right sections)
---       --
---       local my_rounded_bar = wibox.widget {
---          {
---             -- Left section content
---             {
---                wibox.widget.textbox("Left"),
---                -- Add your left widgets here
---                layout = wibox.layout.fixed.horizontal
---             },
---             -- Middle section content
---             {
---                wibox.widget.textbox("Middle"),
---                -- Add your middle widgets here
---                layout = wibox.layout.fixed.horizontal
---             },
---             -- Right section content
---             {
---                wibox.widget.textbox("Right"),
---                -- Add your right widgets here
---                layout = wibox.layout.fixed.horizontal
---             },
---             layout = wibox.layout.align.horizontal
---          },
---          -- Add margins from the screen edges
---          top = 10,
---          left = 20,
---          right = 20,
---          widget = wibox.container.margin,
---       }
-
---       -- Add rounded corners and background to the bar
---       my_rounded_bar = wibox.widget {
---          {
---             my_rounded_bar,
---             bg = beautiful.bg_normal or "#333333",
---             shape = function(cr, width, height)
---                gears.shape.rounded_rect(cr, width, height, 10) -- 10px border radius
---             end,
---             widget = wibox.container.background
---          },
---          top = 6,    -- Additional top margin
---          widget = wibox.container.margin
---       }
-
---       s.mywibox = awful.wibar {
---         position = "top",
---         screen   = s,
---         bg = "#00000000", -- Transparent background for the wibox
---         widget   = {
---             layout = wibox.layout.align.horizontal,
---             my_rounded_bar
---         }
---     }
--- end)
-
 -- }}}
 
 -- {{{ Mouse bindings

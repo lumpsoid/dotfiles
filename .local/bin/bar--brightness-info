@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+x
+brightnessctl i | awk 'NR==2 {start=index($0, "(") + 1; end=index($0, "%") - 1; print substr($0, start, end-start+1)}'

@@ -1,3 +1,5 @@
+local gears = require("gears")
+
 local M = {}
 
 -- Deep copy a table
@@ -45,6 +47,29 @@ M.rounded_rect = function(radius)
 	return function(cr, width, height)
 		gears.shape.rounded_rect(cr, width, height, radius)
 	end
+end
+
+function M.split_by_newline(s)
+    local lines = {}
+    local start_pos = 1
+    local end_pos = 0
+    
+    while true do
+        end_pos = string.find(s, "\n", start_pos)
+        if end_pos == nil then
+            -- Add the last segment if there's content after the last newline
+            if start_pos <= #s then
+                table.insert(lines, string.sub(s, start_pos))
+            end
+            break
+        end
+        
+        -- Add the line segment (excluding the newline character)
+        table.insert(lines, string.sub(s, start_pos, end_pos - 1))
+        start_pos = end_pos + 1
+    end
+    
+    return lines
 end
 
 return M

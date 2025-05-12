@@ -10,17 +10,16 @@ function M.new()
     
     -- Commands for brightness control
     local cmd = {
-        get = "brightnessctl i",
-        set = "echo '(set.set)'",
+        get = "bar--brightness-info",
+        set = "brightnessctl s",
         inc = "brightnessctl s +5%",
-        dec = "brightnessctl s %5-"
+        dec = "brightnessctl s 5%-"
     }
     
     -- Get current brightness level
     self.get_level = function(callback)
-        awful.spawn.easy_async(cmd.get, function(out)
-            local level = string.match(out, "(%d+%.%d+)")
-            level = math.floor(tonumber(level or 0))
+       awful.spawn.easy_async(cmd.get, function(out)
+            level = math.floor(tonumber(out or 0))
             callback(level)
         end)
     end
@@ -33,7 +32,7 @@ function M.new()
                 
                 -- Emit signal to update widget if exists
                 if widget then
-                    widget:emit_signal("update", level)
+                    widget:emit_signal("brightness::update", level)
                 end
                 
                 -- Show notification
