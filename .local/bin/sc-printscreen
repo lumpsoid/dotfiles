@@ -26,3 +26,5 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
     rm /tmp/"$timestamp".png &&
     exit;
 fi
+
+notify-send "Screenshot: XDG_SESSION_TYPE not matched"
