@@ -167,17 +167,8 @@ controllers.battery.set_widget(bar_widgets.battery)
 controllers.brightness.set_widget(bar_widgets.brightness)
 
 -- Initialize widgets with current values
-controllers.volume.get_level(function(level, status)
-      bar_widgets.volume:emit_signal("update", level, status)
-end)
-
-controllers.brightness.get_level(function(level)
-    bar_widgets.brightness:emit_signal("update", level)
-end)
-
--- ============================================================
--- Set Up Keybindings
--- ============================================================
+controllers.volume.update()
+controllers.brightness.update()
 
 -- ============================================================
 -- Set Up Tag Buttons

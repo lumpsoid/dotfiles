@@ -12,8 +12,8 @@ function M.new()
     local cmd = {
        get = "bar--volume-info",
        set = "l--volume-control change",
-       inc = "l--volume-control change 3%+",
-       dec = "l--volume-control change 3%-",
+       inc = "l--volume-control change 2%+",
+       dec = "l--volume-control change 2%-",
        toggle = "l--volume-control toggle"
     }
     
@@ -67,6 +67,7 @@ end
     end
     
     -- Volume control functions
+    self.update = function() action(cmd.get) end
     self.increase = function() action(cmd.inc) end
     self.decrease = function() action(cmd.dec) end
     self.toggle = function() action(cmd.toggle) end

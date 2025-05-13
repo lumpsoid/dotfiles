@@ -12,8 +12,8 @@ function M.new()
     local cmd = {
         get = "bar--brightness-info",
         set = "brightnessctl s",
-        inc = "brightnessctl s +5%",
-        dec = "brightnessctl s 5%-"
+        inc = "brightnessctl s +2%",
+        dec = "brightnessctl s 2%-"
     }
     
     -- Get current brightness level
@@ -45,6 +45,7 @@ function M.new()
     end
     
     -- Brightness control functions
+    self.update = function() action(cmd.get) end
     self.increase = function() action(cmd.inc) end
     self.decrease = function() action(cmd.dec) end
     self.set = function(value) action(cmd.set .. " " .. value) end
