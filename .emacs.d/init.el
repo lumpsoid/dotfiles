@@ -46,7 +46,7 @@
     
   ;; LSP configuration paths
   (when (eq system-type 'gnu/linux)
-    (add-to-list 'exec-path "~/projects/sdk/elixir/elixir-ls")))
+    (add-to-list 'exec-path "~/.local/share/elixir-ls")))
 
 ;; Load theme - deferred until after init to speed up startup
 (defun my/load-theme ()
@@ -586,7 +586,7 @@ This function is intended for frame creation hooks."
   (setq lspce-server-programs `(("rust"   "rust-analyzer" "" lspce-ra-initializationOptions)
                                 ("dart"   "dart" "language-server --client-id emacs.lspce --client-version 1.24.3" lspce-dart-initializationOptions)
                                 ("go"     "gopls" "" nil)
-                                ("elixir" ,(expand-file-name "~/projects/sdk/elixir/elixir-ls/language_server.sh") "" lspce-elixir-initializationOptions)
+                                ("elixir" ,(expand-file-name "~/.local/share/elixir-ls/language_server.sh") "" lspce-elixir-initializationOptions)
                                 ("nix"    "nil" "" nil))))
 
 ;; Configure LSP mode
