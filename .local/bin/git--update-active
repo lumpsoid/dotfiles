@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 LOG_FILE="$HOME/repos/logs/update_active_$(date +%Y%m%d_%H%M%S).log"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -17,7 +17,7 @@ for repo_link in */; do
     if [ ! -L "$repo_link" ]; then
         echo "SKIPPING: $repo_link (not a symlink)"
         continue
-    }
+    fi
     
     repo_path=$(readlink -f "$repo_link")
     echo "PROCESSING: $repo_link -> $repo_path"
