@@ -21,6 +21,11 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
+-- personal
+local constants = require("constants")
+local utils = require("utils")
+local bar = require("bar")
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -38,23 +43,13 @@ end)
 local theme_path = gears.filesystem.get_configuration_dir() .. "theme.lua"
 local theme_result = beautiful.init(theme_path)
 
-naughty.notify({ title = "Theme loaded", text = "Theme path: " .. theme_path })
+if not theme_result then
+   naughty.notify({ title = "Error on theme load", text = "Theme path " .. theme_path, timeout = 1 })
+end
 
-if theme_result then
-   naughty.notify({ title = "Theme loaded", text = "Theme loaded successful" })
-   if beautiful.useless_gap then
-    naughty.notify({ title = "Gap exists", text = "Value: " .. beautiful.useless_gap })
-else
-    naughty.notify({ title = "Error", text = "useless_gap is nil!" })
-end
-   if beautiful.wallpaper then
-      naughty.notify({ title = "Wallpaper path", text = beautiful.wallpaper })
-end
-end
 -- This is used later as the default terminal and editor to run.
-terminal = "st"
 editor = os.getenv("EDITOR") or "nvim"
-editor_cmd = terminal .. " -e " .. editor
+editor_cmd = constants.terminal .. " -e " .. editor
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -68,14 +63,14 @@ modkey = "Mod4"
 -- Create a launcher widget and a main menu
 myawesomemenu = {
    { "hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
-   { "manual", terminal .. " -e man awesome" },
+   { "manual", constants.terminal .. " -e man awesome" },
    { "edit config", editor_cmd .. " " .. awesome.conffile },
    { "restart", awesome.restart },
    { "quit", function() awesome.quit() end },
 }
 
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "open terminal", terminal }
+                                    { "open terminal", constants.terminal }
                                   }
                         })
 
@@ -83,7 +78,7 @@ mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
 
 -- Menubar configuration
-menubar.utils.terminal = terminal -- Set the terminal for applications that require it
+menubar.utils.terminal = constants.terminal -- Set the terminal for applications that require it
 -- }}}
 
 -- {{{ Tag layout
@@ -128,10 +123,6 @@ end)
 -- }}}
 
 -- {{{ Wibar
-local constants = require("constants")
-local utils = require("utils")
-local bar = require("bar")
-
 -- ============================================================
 -- Set Up Bar Components
 -- ============================================================
@@ -200,7 +191,6 @@ screen.connect_signal(
     -- Create widgets for this screen
     local screen_widgets = {
         taglist = bar.create_taglist(s, taglist_buttons),
-        systray = bar.create_systray(),
         status_widgets = {
             layout = wibox.layout.fixed.horizontal,
             bar_widgets.volume,
@@ -246,7 +236,7 @@ awful.keyboard.append_global_keybindings({
             }
          end,
          {description = "lua execute prompt", group = "awesome"}),
-      awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
+      awful.key({ modkey,           }, "Return", function () awful.spawn(constants.terminal) end,
          {description = "open a terminal", group = "launcher"}),
       awful.key({ modkey },            "d",     function () awful.spawn("dmenu_run") end,
          {description = "run prompt", group = "launcher"}),

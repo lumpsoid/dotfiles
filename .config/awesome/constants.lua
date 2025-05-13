@@ -2,7 +2,7 @@ local gfs = require("gears.filesystem")
 
 local M = {}
 
-M.terminal = "st"
+M.terminal = "uxterm"
 M.editor = "emacs"
 M.editor_cmd = M.terminal .. " -e " .. M.editor
 M.mods = {
@@ -10,6 +10,6 @@ M.mods = {
 	s = "Shift",
 	c = "Control",
 }
-M.wallpapers = gfs.get_configuration_dir() .. "../wallpapers/"
+M.wallpapers = gfs.get_configuration_dir() .. "wallpapers/"
 
 return M

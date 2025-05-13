@@ -129,7 +129,6 @@ function M.create_wibar(s, widgets)
                 {
                     layout = wibox.layout.fixed.horizontal,
                     spacing = beautiful.spacing,
-                    M.create_widget_container(widgets.systray),
                     M.create_widget_container(widgets.status_widgets, { widget_spacing = beautiful.spacing_lg }),
                     M.create_widget_container(widgets.date),
                 },

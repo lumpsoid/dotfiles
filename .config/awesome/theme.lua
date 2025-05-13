@@ -4,9 +4,11 @@ local gears = require("gears")
 local naughty = require("naughty")
 local constants = require("constants")
 local utils = require("utils")
+
 local theme = {}
+
 theme.transparent = "#00000000"
-theme.font = "sans 9"
+theme.font = "sans 14"
 theme.black = "#16161D"
 theme.red = "#E46876"
 theme.yellow = "#F2D98C"
@@ -17,13 +19,13 @@ theme.white = "#D3D3D3"
 theme.bg_normal = theme.black
 theme.bg_focus = theme.green
 theme.bg_urgent = theme.red
-theme.bg_minimize = theme.black -- Added missing bg_minimize
+theme.bg_minimize = theme.black
 theme.bg_systray = theme.bg_normal
 -- fg
 theme.fg_normal = theme.white
 theme.fg_focus = theme.yellow
 theme.fg_urgent = theme.white
-theme.fg_minimize = theme.white -- Added missing fg_minimize
+theme.fg_minimize = theme.white
 -- spacing
 theme.spacing = dpi(8)
 theme.spacing_md = dpi(12)
@@ -35,7 +37,7 @@ theme.border_width = dpi(5)
 theme.border_radius = dpi(10)
 theme.border_focus = theme.bg_focus
 theme.border_normal = theme.bg_normal
-theme.border_marked = theme.red -- Added missing border_marked
+theme.border_marked = theme.red
 
 -- Menu
 theme.menu_height = dpi(25)
@@ -48,7 +50,7 @@ theme.taglist_bg_urgent = theme.red
 theme.taglist_fg_focus = theme.bg_normal
 theme.taglist_fg_occupied = theme.green
 -- wallpaper
-theme.wallpaper = "/home/qq/.config/awesome/wallpapers/car.png"
+theme.wallpaper = constants.wallpapers .. "car.png"
 -- bar
 theme.bar_height = dpi(60)
 -- system tray
@@ -71,4 +73,5 @@ theme.calendar_fg_weekday = theme.green
 theme.calendar_fg = theme.fg_normal
 theme.calendar_bg = theme.bg_normal
 theme.calendar_bg_focus = theme.green
+
 return theme
