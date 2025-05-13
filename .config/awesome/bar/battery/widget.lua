@@ -8,7 +8,7 @@ local ICONS = {
     high = "▣",
     medium = "▢",
     low = "▭",
-    critical = "□",
+    critical = "_",
 }
 
 local function get_icon(charge, status)
