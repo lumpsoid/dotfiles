@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 userresources=$HOME/.Xresources
 usermodmap=$HOME/.Xmodmap
 sysresources=/etc/X11/xinit/.Xresources
@@ -24,7 +24,9 @@ if [ -d /etc/X11/xinit/xinitrc.d ] ; then
 	unset f
 fi
 
-xset r rate 300 50
+#xset r rate 300 50
+
+export XDG_SESSION_TYPE=x11
 
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ssh_git
