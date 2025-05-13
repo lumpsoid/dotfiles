@@ -74,7 +74,7 @@
          (font-candidates (list preferred-font "DejaVu Sans Mono" "Source Code Pro" "Ubuntu Mono" "Courier New" "Consolas" "Monospace"))
          (available-font (seq-find (lambda (font) (find-font (font-spec :name font))) font-candidates)))
     (when available-font
-      (set-face-attribute 'default nil :font available-font :height 125))))
+      (set-face-attribute 'default nil :font available-font :height 170))))
 
 ;; Basic UI settings
 (defun my/configure-ui-general ()
