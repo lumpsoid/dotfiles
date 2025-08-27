@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+dart analyze --format=machine | \
+ fzf --query '^ERROR !test' \
+ --preview-window=top:60% \
+--preview "echo {} | cut -d '|' -f 4,5 | awk -F '|' '{print \$1\" \"\$2}' | xargs bash -c 'LINE=\$2; FILE=\$1; START=\$([ \$LINE -gt 5 ] && echo \$((\$LINE-5)) || echo 1); END=\$((\$LINE+5)); bat --color=always --highlight-line \$LINE --line-range \$START:\$END \$FILE' _"
