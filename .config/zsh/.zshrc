@@ -1,31 +1,13 @@
-source "$ZDOTDIR/antigen.zsh"
-antigen use oh-my-zsh
-antigen theme pmcgee
-antigen bundle sudo
-antigen bundle git
-antigen bundle "MichaelAquilina/zsh-you-should-use"
-#antigen bundle "skywind3000/z.lua"
-antigen bundle "zsh-users/zsh-syntax-highlighting"
-antigen apply
-
-export PATH="$PATH":"$HOME/.local/bin"
-export PATH="$PATH":"$HOME/.pub-cache/bin"
-export PATH="$PATH":"$HOME/.cargo/bin"
-export PATH="$PATH":"/home/qq/Documents/programming/flutter/flutter/bin"
-
-# android development
-export ANDROID_HOME=/home/qq/.config/Android
-export ANDROID_AVD_HOME=/home/qq/.config/.android/avd/
-export PATH="$PATH":"$ANDROID_HOME/tools"
-export PATH="$PATH":"$ANDROID_HOME/cmdline-tools/latest/bin"
-export PATH="$PATH":"$ANDROID_HOME/platform-tools"
-#export ANDROID_SDK_ROOT=/home/qq/.config/.android
-
-#flutter web dev
-export CHROME_EXECUTABLE=/usr/bin/chromium
-
 source /usr/share/fzf/completion.zsh
 source /usr/share/fzf/key-bindings.zsh
+
+autoload -Uz vcs_info
+precmd() { vcs_info }
+
+zstyle ':vcs_info:git:*' formats '%b '
+
+setopt PROMPT_SUBST
+PROMPT='%F{green}%T%f %F{blue}%~%f %F{red}${vcs_info_msg_0_}%f$ '
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
@@ -45,3 +27,37 @@ setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording en
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion.
 
 eval "$(navi widget zsh)"
+
+# Load ssh-agent environment
+if [ -f ~/.ssh/agent-env ]; then
+    source ~/.ssh/agent-env > /dev/null
+    # Check if the agent is still running
+    if ! kill -0 "$SSH_AGENT_PID" 2>/dev/null; then
+        # Agent is dead, remove the file
+        rm ~/.ssh/agent-env
+    fi
+fi
+
+# Keybindings
+# Enable key bindings
+bindkey -e  # Use emacs-style key bindings (default)
+
+# Word deletion and navigation
+bindkey '^H' backward-kill-word        # Ctrl+Backspace - delete word backward
+bindkey '^[[3;5~' kill-word           # Ctrl+Delete - delete word forward
+bindkey '^A' beginning-of-line        # Ctrl+A - go to beginning of line
+bindkey '^E' end-of-line              # Ctrl+E - go to end of line
+
+# Home/End keys (may vary by terminal)
+bindkey '^[[H' beginning-of-line      # Home
+bindkey '^[[F' end-of-line            # End
+bindkey '^[[1~' beginning-of-line     # Alternative Home
+bindkey '^[[4~' end-of-line           # Alternative End
+
+# Arrow key word movement
+bindkey '^[[1;5C' forward-word        # Ctrl+Right Arrow
+bindkey '^[[1;5D' backward-word       # Ctrl+Left Arrow
+
+# Line editing
+bindkey '^K' kill-line                # Ctrl+K - delete from cursor to end
+bindkey '^U' backward-kill-line       # Ctrl+U - delete from cursor to beginning
