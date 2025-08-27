@@ -1,23 +1,46 @@
-xterm*faceName: Cascadia Code:style=Regular:pixelsize=18
-*.font: Cascadia Code:pixelsize=18
-*.foreground: #F8F8F2
-*.background: #282A36
-*.color0:     #000000
-*.color8:     #4D4D4D
-*.color1:     #FF5555
-*.color9:     #FF6E67
-*.color2:     #50FA7B
-*.color10:    #5AF78E
-*.color3:     #F1FA8C
-*.color11:    #F4F99D
-!*.color4:     #BD93F9
-*.color4:     #fba23d
-!*.color12:    #CAA9FA
-*.color12:    #fba23d
-*.color5:     #FF79C6
-*.color13:    #FF92D0
-*.color6:     #8BE9FD
-*.color14:    #9AEDFE
-*.color7:     #BFBFBF
-*.color15:    #E6E6E6
-*.cursorColor: green
+! Font
+*faceName: CascadiaCode
+*faceSize: 18
+! Modern Blue-Yellow Terminal Theme for xterm/uxterm
+! Basic Settings
+*background:  #0d2247
+*foreground:  #f2d857
+*cursorColor: #f2d857
+! Black (Normal and Bright)
+*color0:      #1e3355
+*color8:      #3e5a80
+! Red (Normal and Bright)
+*color1:      #ff7e67
+*color9:      #ff9d8f
+! Green (Normal and Bright)
+*color2:      #9de07a
+*color10:     #b8f0a0
+! Yellow (Normal and Bright)
+*color3:      #ffda7a
+*color11:     #ffe7a3
+! Blue (Normal and Bright)
+*color4:      #7ab2ff
+*color12:     #a0c8ff
+! Magenta (Normal and Bright)
+*color5:      #c792ea
+*color13:     #ddb6f2
+! Cyan (Normal and Bright)
+*color6:      #7adbe9
+*color14:     #a0e9f5
+! White (Normal and Bright)
+*color7:      #c7d3e0
+*color15:     #edf2f7
+! xterm specific settings
+xterm*background:  #0d2247
+xterm*foreground:  #f2d857
+xterm*cursorColor: #f2d857
+xterm*scrollBar:   false
+! uxterm specific settings (generally same as xterm)
+UXTerm*background:  #0d2247
+UXTerm*foreground:  #f2d857
+UXTerm*cursorColor: #f2d857
+UXTerm*scrollBar:   false
+UXTerm*selectToClipboard: true
+! Selection colors
+*highlightColor:      #2a4166
+*highlightTextColor:  #f2d857
