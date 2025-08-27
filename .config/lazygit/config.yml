@@ -1,0 +1,5 @@
+git:
+  # Config relating to merging
+  merging:
+    # Extra args passed to `git merge`, e.g. --no-ff
+    args: "--no-ff"
