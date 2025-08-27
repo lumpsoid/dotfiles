@@ -10,6 +10,6 @@ M.mods = {
 	s = "Shift",
 	c = "Control",
 }
-M.wallpapers = gfs.get_configuration_dir() .. "wallpapers/"
+M.wallpapers = "/home/qq/Pictures/wallpapers"
 
 return M

@@ -50,7 +50,7 @@ theme.taglist_bg_urgent = theme.red
 theme.taglist_fg_focus = theme.bg_normal
 theme.taglist_fg_occupied = theme.green
 -- wallpaper
-theme.wallpaper = constants.wallpapers .. "car.png"
+theme.wallpaper = constants.wallpapers .. "/my-neighbor-totoro-sunflowers.png"
 -- bar
 theme.bar_height = dpi(60)
 -- system tray

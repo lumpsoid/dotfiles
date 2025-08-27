@@ -107,17 +107,12 @@ screen.connect_signal("request::wallpaper", function(s)
     awful.wallpaper {
         screen = s,
         widget = {
-            {
-                image     = beautiful.wallpaper,
-                upscale   = true,
-                downscale = true,
-                widget    = wibox.widget.imagebox,
-            },
-            valign = "center",
-            halign = "center",
-            tiled  = false,
-            widget = wibox.container.tile,
-        }
+         image  = gears.surface.crop_surface {
+             surface = gears.surface.load_uncached(beautiful.wallpaper),
+             ratio = s.geometry.width/s.geometry.height,
+         },
+         widget = wibox.widget.imagebox,
+     },
     }
 end)
 -- }}}
