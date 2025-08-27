@@ -53,7 +53,9 @@
   "Load the theme after startup."
   (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
   
-  (cond ((member 'modus-operandi-tinted (custom-available-themes))
+  (cond ((member 'misterioso (custom-available-themes))
+         (load-theme 'misterioso t))
+        ((member 'modus-operandi-tinted (custom-available-themes))
          (load-theme 'yellow-blue t))
         ((member 'modus-operandi-tinted (custom-available-themes))
          (load-theme 'modus-operandi-tinted))
@@ -74,7 +76,7 @@
          (font-candidates (list preferred-font "DejaVu Sans Mono" "Source Code Pro" "Ubuntu Mono" "Courier New" "Consolas" "Monospace"))
          (available-font (seq-find (lambda (font) (find-font (font-spec :name font))) font-candidates)))
     (when available-font
-      (set-face-attribute 'default nil :font available-font :height 170))))
+      (set-face-attribute 'default nil :font available-font :height 145))))
 
 ;; Basic UI settings
 (defun my/configure-ui-general ()
@@ -139,6 +141,18 @@ This function is intended for frame creation hooks."
   ;;(require 'electric)
   ;;(electric-pair-mode 1)
   )
+
+(defun my/xref ()
+  ;; Prefer ripgrep, then ugrep, and fall back to regular grep.
+  (setq xref-search-program
+        (cond
+         ((or (executable-find "ripgrep")
+              (executable-find "rg"))
+          'ripgrep)
+         ((executable-find "ugrep")
+          'ugrep)
+         (t
+          'grep))))
 
 ;; Package system initialization
 (defun my/init-package-system ()
@@ -208,7 +222,7 @@ This function is intended for frame creation hooks."
 (defun my/load-personal-scripts ()
   "Load personal scripts from user directory."
   (add-to-list 'load-path "~/.emacs.d/personal/")
-  (my/autoload-package 'lump-md 'text-mode-hook 'markdown-mode-hook))
+  (my/autoload-package 'lump-md 'lump-md-note))
 
 ;; Configure completion system
 (defun my/configure-completion ()
@@ -310,7 +324,10 @@ This function is intended for frame creation hooks."
            "* TODO %?\n  %i\n  %a")
           ("n" "Note" entry
            (file+headline org-default-notes-file "Notes")
-           "* %? :NOTE:\n  %U\n  %i\n  %a")))
+           "* %? :NOTE:\n  %U\n  %i\n  %a")
+          ("u" "Uniqee Task" entry
+           (file+olp "~/Documents/notes/uniqee.org" "Tasks" "Inbox")
+           "* TODO %?\n  %i\n  %a")))
   
   ;; Configure refile targets
   (setq org-refile-targets '((nil :maxlevel . 9)
@@ -367,13 +384,14 @@ This function is intended for frame creation hooks."
                                             "* Some heading"))))
   
   ;; Key bindings - these will autoload denote functions when used
-  (global-set-key (kbd "C-c n n") #'denote)
+  (global-set-key (kbd "C-c n n") #'denote-open-or-create)
   (global-set-key (kbd "C-c n d") #'denote-sort-dired)
   (global-set-key (kbd "C-c n l") #'denote-link-or-create)
   (global-set-key (kbd "C-c n L") #'denote-add-links)
   (global-set-key (kbd "C-c n b") #'denote-backlinks)
   (global-set-key (kbd "C-c n r") #'denote-rename-file)
   (global-set-key (kbd "C-c n R") #'denote-rename-file-using-front-matter)
+  (global-set-key (kbd "C-c n t") #'denote-change-file-type-and-front-matter)
   
   ;; Dired mode key bindings
   (with-eval-after-load 'dired
@@ -410,14 +428,15 @@ This function is intended for frame creation hooks."
     (cl-defmethod project-root ((project (head dart-module)))
       (cdr project))
     (add-hook 'project-find-functions #'project-find-dart-module)
-  
+    
     ;; Define function for format current buffer
     (defun dart-format-buffer ()
-      "Format the current buffer using dart format."
+      "Save and format the current buffer using dart format."
       (interactive)
       (let ((file-name (buffer-file-name)))
         (if file-name
             (progn
+              (save-buffer)
               (message "Formatting %s..." file-name)
               (shell-command (concat "dart format " (shell-quote-argument file-name)))
               (revert-buffer nil t nil)
@@ -460,11 +479,50 @@ This function is intended for frame creation hooks."
           (insert "  }\n")
           (insert "}\n"))))
 
+    (defun dart-create-barrel-file ()
+      "Create a Dart barrel file with export statements for all .dart files in the current directory
+and for subdirectories that contain a .dart file with the same name as the directory.
+Excludes the current buffer file and sorts files alphabetically."
+      (interactive)
+      (let* ((current-file (file-name-nondirectory (buffer-file-name)))
+             (current-dir (file-name-directory (buffer-file-name)))
+             (dart-files (directory-files current-dir nil "\\.dart$"))
+             (filtered-files (remove current-file dart-files))
+             (subdirs (directory-files current-dir nil "^[^.].*$" nil))
+             (folder-exports '())
+             (all-exports '()))
+    
+        ;; Check subdirectories for matching dart files
+        (dolist (subdir subdirs)
+          (let ((full-subdir-path (expand-file-name subdir current-dir)))
+            (when (file-directory-p full-subdir-path)
+              (let ((matching-file (concat subdir ".dart"))
+                    (matching-path (expand-file-name (concat subdir ".dart") full-subdir-path)))
+                (when (file-exists-p matching-path)
+                  (push (format "%s/%s" subdir matching-file) folder-exports))))))
+    
+        ;; Combine and sort all exports
+        (setq all-exports (append filtered-files folder-exports))
+        (setq all-exports (sort all-exports 'string<))
+    
+        (if all-exports
+            (progn
+              (erase-buffer)
+              (dolist (export all-exports)
+                (insert (format "export '%s';\n" export)))
+              (message "Barrel file created with %d exports (%d files, %d folders)" 
+                       (length all-exports) 
+                       (length filtered-files) 
+                       (length folder-exports)))
+          (message "No .dart files or matching folders found in current directory"))))
+
     ;; Bind to a key if desired
     (define-key dart-mode-map (kbd "C-c C-e") 'flutter-extract-first-row-widget)
 
     ;; Keybindings
-    (define-key dart-mode-map (kbd "C-c C-o") 'dart-format-buffer))
+    (define-key dart-mode-map (kbd "C-c C-o") 'dart-format-buffer)
+    (define-key dart-mode-map (kbd "C-c C-b") 'dart-create-barrel-file)
+    )
 
   ;; Define outline level function
   (defun dart-outline-level ()
@@ -490,6 +548,17 @@ This function is intended for frame creation hooks."
   (add-to-list 'treesit-language-source-alist '(gomod "https://github.com/camdencheek/tree-sitter-go-mod"))
   (add-to-list 'treesit-language-source-alist '(dart "https://github.com/UserNobody14/tree-sitter-dart"))
   (add-to-list 'treesit-language-source-alist '(elixir "https://github.com/elixir-lang/tree-sitter-elixir")))
+
+(defun my/code-utils()
+  (defun my/revert-project-buffers ()
+  "Revert all file buffers in the current project."
+  (interactive)
+  (when-let ((project (project-current)))
+    (dolist (buffer (project-buffers project))
+      (with-current-buffer buffer
+        (when (and (buffer-file-name)
+                   (file-exists-p (buffer-file-name)))
+          (revert-buffer t t t)))))))
 
 (defun my/configure-lspce ()
   ;; Load the lspce package from the specified path
@@ -970,6 +1039,10 @@ you'll be prompted to select the end point of the region."
       (define-key telega-chat-mode-map (kbd "C-c @") #'my/telega-complete-username)
       (add-hook 'telega-chat-mode-hook #'my/telega-setup-completion))))
 
+(defun my/global-keybindings ()
+  ;; Set up the org-capture shortcut
+  (global-set-key (kbd "C-c c") 'org-capture))
+
 ;; The main configuration pipeline
 (defun my/init-emacs ()
   "Initialize Emacs with the pipeline of configurations."
@@ -985,11 +1058,13 @@ you'll be prompted to select the end point of the region."
   (my/configure-paths)
   (my/emacs-behavior)
   (my/editor)
+  (my/xref)
   (my/setup-ui)
   (my/load-personal-scripts)
   (my/utilities)
   
   ;; General features and modes
+  (my/global-keybindings)
   (my/configure-completion)
   (my/configure-org)
   (my/configure-denote)
@@ -1001,6 +1076,7 @@ you'll be prompted to select the end point of the region."
   
   ;; Development environment
   ;;(my/configure-lsp)
+  (my/code-utils)
   (my/configure-lspce)
   (my/configure-dart-mode)
   (my/configure-go-mode)

@@ -206,6 +206,34 @@ If DIRECTORY is nil, use the current directory."
 ;;;; Public Functions
 
 ;;;###autoload
+(defun lump-md-transform-wiki-links-with-headers ()
+  "Transform [[link]] to [[file:./link.md][header]] where header is first line of file with # trimmed."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "\\[\\[\\([^]]+\\)\\]\\]" nil t)
+      (when (match-string 1)  ; Check if we have a match
+        (let* ((link (match-string 1))
+               (filepath (concat "./" link ".md"))
+               (header ""))
+          (message "Processing link: %s" link)
+          (if (file-exists-p filepath)
+              (progn
+                (with-temp-buffer
+                  (insert-file-contents filepath)
+                  (goto-char (point-min))
+                  (when (not (eobp))
+                    (setq header (buffer-substring-no-properties 
+                                 (line-beginning-position) 
+                                 (line-end-position)))
+                    ;; Trim leading # and whitespace
+                    (setq header (replace-regexp-in-string "^#+\\s-*" "" header))
+                    (setq header (string-trim header))))
+                ;; Replace the match
+                (replace-match (format "[[file:%s][%s]]" filepath header)))
+            (message "File not found: %s" filepath)))))))
+
+;;;###autoload
 (defun lump-md-note (file)
   "Refactor a markdown note interactively by showing preview and asking for title and tags.
 If the current buffer is a markdown file with a matching pattern, its path will be
