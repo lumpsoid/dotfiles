@@ -1,23 +1,31 @@
 #!/usr/bin/env bash
 
-# Script to switch PulseAudio/WirePlumber output sink using dmenu
+# Script to switch PulseAudio/WirePlumber output sink using fzf
+# Usage: ./sink-switch
 
-# Get list of available sinks
-sinks=$(pactl list short sinks | awk '{print $2}')
+# Get list of available sinks (name and description if available)
+sinks=$(pactl list short sinks | awk '{print $1"\t"$2}')
 
-# Use dmenu to select a sink
-selected_sink=$(echo "$sinks" | dmenu -i -p "Select Audio Output:")
+# Use fzf to select a sink (show both index and name; display name in the prompt)
+selected_line=$(echo "$sinks" | fzf --ansi --prompt="Select Audio Output: " --layout=reverse --height=40%)
 
-# If a sink is selected, switch to it
-if [ -n "$selected_sink" ]; then
+# If a sink is selected, extract the sink name and switch to it
+if [ -n "$selected_line" ]; then
+    # selected_line format: index<TAB>name
+    selected_sink=$(echo "$selected_line" | awk -F'\t' '{print $2}')
+    if [ -z "$selected_sink" ]; then
+        # fallback: maybe the line only contained one column
+        selected_sink=$(echo "$selected_line" | awk '{print $2}')
+    fi
+
     # Set the default sink
     pactl set-default-sink "$selected_sink"
-    
+
     # Move all current audio streams to the new sink
-    pactl list short sink-inputs | while read stream_id stream_name; do
-        pactl move-sink-input "$stream_id" "$selected_sink"
+    pactl list short sink-inputs | while read stream_id rest; do
+        [ -n "$stream_id" ] && pactl move-sink-input "$stream_id" "$selected_sink"
     done
-    
+
     # Optional: notify the user
     notify-send "Audio Output Changed" "Switched to sink: $selected_sink"
 fi
