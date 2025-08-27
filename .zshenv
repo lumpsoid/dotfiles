@@ -3,10 +3,19 @@ export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 
+export EDITOR="nvim"
+
+export QT_QPA_PLATFORM="wayland"
+
 # for zsh to respect xdg env
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
 export PATH="$HOME/.local/bin:$PATH"
+
+# QT scale
+#export QT_AUTO_SCREEN_SET_FACTOR=0
+#export QT_SCALE_FACTOR=1
+#export QT_FONT_DPI=120
 
 # Rust XDG setup
 export RUSTUP_HOME="${XDG_DATA_HOME}/rustup"
@@ -39,7 +48,7 @@ export PRYRC="${XDG_CONFIG_HOME}/pry/pryrc"
 export SOLARGRAPH_CACHE="${XDG_CACHE_HOME}/solargraph"
 
 # Add local gem binaries to PATH
-export PATH="${GEM_HOME}/bin:$PATH"
+export PATH="${GEM_HOME}/bin:$GEM_HOME/ruby/3.4.0/bin:$PATH"
 
 # Flutter/Dart XDG setup
 export FLUTTER_ROOT="${XDG_DATA_HOME}/flutter"
@@ -55,7 +64,7 @@ export ANALYZER_DIAGNOSTIC_SERVER_CACHE="${XDG_CACHE_HOME}/dart/analyzer_server"
 # Add Flutter and Dart binaries to PATH
 export PATH="${FLUTTER_ROOT}/bin:${PUB_CACHE}/bin:$PATH"
 # Flutter path to the chromium executable
-export CHROME_EXECUTABLE=/usr/bin/brave
+#export CHROME_EXECUTABLE=/usr/bin/brave
 
 # Android development XDG setup
 export ANDROID_HOME="${XDG_DATA_HOME}/android/sdk"
