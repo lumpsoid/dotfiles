@@ -17,6 +17,7 @@ export PATH="$HOME/.local/bin:$PATH"
 #export QT_SCALE_FACTOR=1
 #export QT_FONT_DPI=120
 
+# Rust
 # Rust XDG setup
 export RUSTUP_HOME="${XDG_DATA_HOME}/rustup"
 export CARGO_HOME="${XDG_DATA_HOME}/cargo"
