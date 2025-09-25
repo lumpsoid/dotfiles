@@ -22,11 +22,11 @@ map_default() {
 #init_programm "pipewire"
 #init_programm "pipewire-pulse"
 #init_programm "wireplumber"
-init_programm "lxqt-policykit-agent"
+#init_programm "lxqt-policykit-agent"
 #init_programm "dunst"
 init_programm "waybar"
 #init_programm "yambar"
-init_programm "gnome-keyring-daemon"
+#init_programm "gnome-keyring-daemon"
 riverctl spawn "dbus-update-activation-environment DISPLAY XAUTHORITY WAYLAND_DISPLAY"
 #export $(dbus-launch)
 eval "$(ssh-agent -s)"
@@ -41,23 +41,23 @@ riverctl input pointer-1267-12738-ELAN0752:00_04F3:31C2_Touchpad tap enabled
 
 # Note: the "$mod" modifier is also known as Logo, GUI, Windows, Mod4, etc.
 mod="Mod4"
-BROWSER="librewolf"
+BROWSER="floorp"
 TERMINAL="foot"
 
-riverctl map normal $mod+Shift R spawn "~/.config/river/init"
+riverctl map normal $mod+Shift R spawn "$HOME/.config/river/init"
 # $mod+Shift+Return to start an instance of foot (https://codeberg.org/dnkl/foot)
 riverctl map normal $mod Return spawn foot
 
 riverctl map -layout 0 normal $mod D spawn 'fuzzel'
-riverctl map normal $mod W spawn "MOZ_ENABLE_WAYLAND=1 $BROWSER"
-riverctl map normal $mod N spawn "gio launch ~/.local/share/applications/obsidian.desktop"
+riverctl map normal $mod W spawn "$BROWSER"
+#riverctl map normal $mod N spawn "gio launch ~/.local/share/applications/obsidian.desktop"
 #riverctl map normal $mod M spawn 'foot neomutt'
 # 0xff61 = PrintScreen button
 # /usr/include/xkbcommon/xkbcommon-keysyms.h
 #riverctl map normal None 0xff61 spawn "sc-screenshootsh"
 riverctl map normal None Print spawn "sh -e ~/.local/bin/sc-screenshootsh"
 riverctl map normal None XF86Calculator spawn "$TERMINAL --app-id=calc fend"
-riverctl rule-add float -app-id 'bc-calc'
+riverctl rule-add float -app-id 'calc'
 
 # $mod+Q to close the focused view
 riverctl map normal $mod Q close
