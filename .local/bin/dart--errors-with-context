@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Run dart analyze and parse errors (excluding *_test.dart)
+dart analyze --format=machine | grep 'ERROR' | grep -v '_test\.dart|' | while IFS='|' read -r severity type code filepath line column length message
+do
+  # Strip absolute path to make it relative
+  relative_path="${filepath#$PWD/}"
+
+  echo "────────────────────────────────────────────────────"
+  echo "❌ [$severity] $code"
+  echo "📄 File: $relative_path"
+  echo "📍 Line: $line, Column: $column"
+  echo "🗒️ Message: $message"
+  echo "────────────────────────────────────────────────────"
+
+  # Convert line to integer (remove carriage returns if any)
+  line_num=$(echo "$line" | tr -d '\r')
+  start=$((line_num - 5))
+  end=$((line_num + 5))
+
+  # Avoid going below line 1
+  if [ "$start" -lt 1 ]; then
+    start=1
+  fi
+
+  # Show code snippet with the error line highlighted
+  awk -v s="$start" -v e="$end" -v err="$line_num" 'NR>=s && NR<=e {
+    if (NR == err) {
+      printf "👉 %4d | %s\n", NR, $0
+    } else {
+      printf "     %4d | %s\n", NR, $0
+    }
+  }' "$filepath"
+
+  echo ""
+done
+
