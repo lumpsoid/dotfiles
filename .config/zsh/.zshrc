@@ -38,6 +38,10 @@ if [ -f ~/.ssh/agent-env ]; then
     fi
 fi
 
+mkcd() {
+  mkdir -p "$1" && cd "$1"
+}
+
 # Keybindings
 # Enable key bindings
 bindkey -e  # Use emacs-style key bindings (default)
