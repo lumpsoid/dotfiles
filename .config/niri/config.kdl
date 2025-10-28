@@ -265,6 +265,7 @@ binds {
     Mod+D { spawn "fuzzel"; }
     Mod+W { spawn "floorp"; }
     //Super+Alt+L { spawn "swaylock"; }
+    Mod+Ctrl+F { toggle-window-floating; }
 
     // You can also use a shell:
     // Mod+T { spawn "bash" "-c" "notify-send hello && exec alacritty"; }
