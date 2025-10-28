@@ -82,6 +82,7 @@ export GRADLE_USER_HOME="${XDG_DATA_HOME}/gradle"
 export PATH="${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/cmdline-tools/latest/bin:$PATH"
 
 # Python XDG setup
+export PYTHONHISTFILE="${XDG_STATE_HOME}/python/history"
 export PYTHONUSERBASE="${XDG_DATA_HOME}/python"
 export PYTHONSTARTUP="${XDG_CONFIG_HOME}/python/pythonrc"
 export IPYTHONDIR="${XDG_CONFIG_HOME}/ipython"
