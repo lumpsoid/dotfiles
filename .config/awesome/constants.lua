@@ -3,7 +3,7 @@ local gfs = require("gears.filesystem")
 local M = {}
 
 M.terminal = "uxterm"
-M.editor = "emacs"
+M.editor = "nvim"
 M.editor_cmd = M.terminal .. " -e " .. M.editor
 M.mods = {
 	m = "Mod4",

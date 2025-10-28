@@ -7,13 +7,14 @@ local utils = require("utils")
 
 local theme = {}
 
+theme.font = "sans 16"
+
 theme.transparent = "#00000000"
-theme.font = "sans 14"
 theme.black = "#16161D"
 theme.red = "#E46876"
 theme.yellow = "#F2D98C"
 theme.orange = "#FFA066"
-theme.green = "#A8C98F"
+theme.green = "#7BC275"
 theme.white = "#D3D3D3"
 -- bg
 theme.bg_normal = theme.black
@@ -40,8 +41,8 @@ theme.border_normal = theme.bg_normal
 theme.border_marked = theme.red
 
 -- Menu
-theme.menu_height = dpi(25)
-theme.menu_width = dpi(200)
+--theme.menu_height = dpi(5)
+--theme.menu_width = dpi(200)
 
 -- taglist
 theme.taglist_bg = theme.bg_normal
@@ -56,11 +57,8 @@ theme.bar_height = dpi(60)
 -- system tray
 theme.systray_icon_spacing = theme.spacing
 theme.systray_max_rows = 7
--- ********************************* --
---
---              Widgets
---
--- ********************************* --
+
+-- Widgets
 -- battery
 theme.battery_happy = theme.fg_normal
 theme.battery_tired = theme.yellow
