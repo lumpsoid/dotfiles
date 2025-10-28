@@ -7,5 +7,6 @@ Name=nvim
 # A comment which can/will be used as a tooltip
 Comment=editor
 # The executable of the application, possibly with arguments.
-Exec=/usr/local/bin/st -- /bin/nvim %F
+Exec=/usr/bin/nvim %F
 # Describes whether this application needs to be run in a terminal or not
+Terminal=true
