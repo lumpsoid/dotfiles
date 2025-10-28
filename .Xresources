@@ -1,6 +1,6 @@
 ! Font
 *faceName: CascadiaCode
-*faceSize: 18
+*faceSize: 20
 ! Modern Blue-Yellow Terminal Theme for xterm/uxterm
 ! Basic Settings
 *background:  #0d2247
@@ -44,3 +44,6 @@ UXTerm*selectToClipboard: true
 ! Selection colors
 *highlightColor:      #2a4166
 *highlightTextColor:  #f2d857
+
+! makes Backspace send ^? (DEL)
+UXTerm*backarrowKey: false
