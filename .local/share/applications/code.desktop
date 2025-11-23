@@ -1,0 +1,20 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Visual Studio Code
+Comment=Code Editing. Redefined.
+# Use the wrapper script to handle both Wayland and X11 correctly
+Exec=launch-code %U
+Icon=/usr/lib/code/resources/linux/code.png
+Terminal=false
+StartupWMClass=Code
+Categories=Development;IDE;TextEditor;
+MimeType=text/plain;inode/directory;application/x-code-workspace;
+Actions=new-empty-window;
+Keywords=vscode;
+
+[Desktop Action new-empty-window]
+Name=New Empty Window
+# Also use the wrapper script for the right-click action
+Exec=launch-code --new-window %U
+Icon=/usr/lib/code/resources/linux/code.png

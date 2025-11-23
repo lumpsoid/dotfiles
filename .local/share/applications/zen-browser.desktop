@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Zen Browser
+Comment=A beautifully designed, privacy-focused browser
+Exec=/home/qq/.local/share/zen-browser/zen-bin %U
+Icon=/home/qq/.local/share/zen-browser/browser/chrome/icons/default/default128.png
+Terminal=false
+StartupWMClass=zen-browser
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/vnd.mozilla.xul+xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/chrome;video/webm;application/x-xpinstall;

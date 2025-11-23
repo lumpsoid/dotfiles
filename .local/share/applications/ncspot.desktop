@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ncspot
+Comment=An ncurses Spotify client written in Rust
+Exec=/home/qq/.local/bin/ncspot
+Icon=audio-x-generic
+Terminal=true
+Categories=AudioVideo;Audio;Player;
