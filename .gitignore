@@ -2,3 +2,4 @@
 .config/ncspot/userstate.cbor
 *#
 *~
+.local/share/applications/org.telegram.desktop*
