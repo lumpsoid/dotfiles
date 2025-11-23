@@ -34,4 +34,4 @@ git--start
 
 dunst &
 
-exec awesome
+exec i3
