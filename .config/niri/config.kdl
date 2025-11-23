@@ -192,7 +192,7 @@ layout {
 spawn-at-startup "dbus-update-activation-environment" "DISPLAY" "XAUTHORITY" "WAYLAND_DISPLAY"
 spawn-at-startup "waybar"
 spawn-at-startup "wired"
-spawn-at-startup "git--start"
+spawn-at-startup "setup-ssh-agent.sh"
 spawn-at-startup "foot" "--server"
 
 // Uncomment this line to ask the clients to omit their client-side decorations if possible.
