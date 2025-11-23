@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "params" "$@"
+yt-dlp -x --audio-format opus --audio-quality 160K "$@"

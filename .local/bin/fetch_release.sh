@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: download_github_release.sh owner repo [asset_pattern] [tag]
-# Example: ./download_github_release.sh cli cli "linux_amd64.tar.gz"
-# Example latest: ./download_github_release.sh owner repo ".*linux.*"
-# Example specific tag: ./download_github_release.sh owner repo ".*" v1.2.3
+# Usage: download_github_release.sh [-o OUTPUT] owner repo [asset_pattern] [tag]
+# Requires: parse_github_release_json (in PATH or same directory)
+# Example: ./download_github_release.sh -o /tmp/cli.tar.gz cli cli "linux_amd64.tar.gz"
 
-OWNER=${1:-}
-REPO=${2:-}
-PATTERN=${3:-.*}   # regex to match asset name; default matches any asset
-TAG=${4:-}         # optional specific tag (e.g. v1.2.3); empty = latest
+OWNER=""
+REPO=""
+PATTERN=".*"   # regex to match asset name; default matches any asset
+TAG=""          # optional specific tag (e.g. v1.2.3); empty = latest
+OUT=""          # optional output path
+SHOW_HELP=0
 
 info()    { echo -e "\033[1;34m[INFO]\033[0m $*"; }
 warn()    { echo -e "\033[1;33m[WARN]\033[0m $*"; }
@@ -17,7 +18,12 @@ error()   { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
 
 show_help() {
   cat <<EOF
-Usage: $0 <owner> <repo> [asset_pattern] [tag]
+Usage: $0 [-o OUTPUT] <owner> <repo> [asset_pattern] [tag]
+
+Options:
+  -o, --output   Path to write downloaded asset (file or directory).
+                 If a directory is given, the asset filename will be used.
+                 If not provided, the current directory is used with the asset name.
 
 Arguments:
   owner          GitHub repository owner (e.g. "cli")
@@ -25,22 +31,68 @@ Arguments:
   asset_pattern  (Optional) Regex to match asset name. Default: ".*"
   tag            (Optional) Release tag (e.g. "v1.2.3"). Default: latest
 
-Examples:
-  $0 cli cli
-  $0 cli cli "linux_amd64.tar.gz"
-  $0 cli cli ".*linux.*"
-  $0 cli cli ".*" v1.2.3
-
 Environment:
   GITHUB_TOKEN   (Optional) GitHub token for authenticated API access
                  to avoid rate limiting (recommended)
 
+Note:
+  This script expects the helper script 'parse_github_release_json' to be available in PATH
+  or in the same directory as this script.
 EOF
 }
 
-if [[ "${1:-}" == "--help" || -z "${OWNER}" || -z "${REPO}" ]]; then
+# Parse options
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o|--output)
+      if [[ -n "${2:-}" ]]; then
+        OUT="$2"
+        shift 2
+        continue
+      else
+        error "Missing value for $1"
+        exit 2
+      fi
+      ;;
+    -h|--help)
+      SHOW_HELP=1
+      shift
+      ;;
+    --) shift; break ;;
+    -*)
+      error "Unknown option: $1"
+      exit 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [[ $SHOW_HELP -eq 1 ]]; then
+  show_help
+  exit 0
+fi
+
+OWNER=${1:-}
+REPO=${2:-}
+PATTERN=${3:-$PATTERN}
+TAG=${4:-$TAG}
+
+if [[ -z "${OWNER}" || -z "${REPO}" ]]; then
   show_help
   exit 1
+fi
+
+# locate parser
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+if command -v parse_github_release_json >/dev/null 2>&1; then
+  PARSER_CMD="parse_github_release_json.sh"
+elif [[ -x "$SCRIPT_DIR/parse_github_release_json.sh" ]]; then
+  PARSER_CMD="$SCRIPT_DIR/parse_github_release_json.sh"
+else
+  error "parse_github_release_json.sh not found in PATH or script directory ($SCRIPT_DIR)."
+  exit 2
 fi
 
 AUTH_HEADER=""
@@ -73,44 +125,59 @@ if echo "$RELEASE_JSON" | grep -q '"Not Found"\|"API rate limit exceeded"'; then
   exit 3
 fi
 
-# Extract tag_name and list assets (use jq if available; fallback to grep/sed)
-if command -v jq >/dev/null 2>&1; then
-  TAG_NAME=$(echo "$RELEASE_JSON" | jq -r '.tag_name // .name')
-  # Find first asset matching PATTERN
-  ASSET_URL=$(echo "$RELEASE_JSON" | jq -r --arg pat "$PATTERN" '.assets[] | select(.name | test($pat)) | .browser_download_url' | head -n1)
-  ASSET_NAME=$(echo "$RELEASE_JSON" | jq -r --arg pat "$PATTERN" '.assets[] | select(.name | test($pat)) | .name' | head -n1)
-else
-  TAG_NAME=$(echo "$RELEASE_JSON" | sed -n 's/.*"tag_name":[[:space:]]*"$[^"]*$".*/\1/p; t; s/.*"name":[[:space:]]*"$[^"]*$".*/\1/p' | head -n1)
-  # crude asset extraction
-  # produce lines "name||browser_download_url"
-  ASSET_LINE=$(echo "$RELEASE_JSON" | tr '\n' ' ' | sed -E 's/.*"assets":[[:space:]]*$$([^]]*)$$.*/\1/' | \
-    awk -v RS='},' '
-      {
-        if (match($0, /"name":[[:space:]]*"([^"]+)"/, n) && match($0, /"browser_download_url":[[:space:]]*"([^"]+)"/, u)) {
-          print n[1] "||" u[1]
-        }
-      }' | grep -E "$PATTERN" | head -n1 || true)
-  ASSET_NAME=${ASSET_LINE%%||*}
-  ASSET_URL=${ASSET_LINE#*||}
-  if [[ "$ASSET_URL" == "$ASSET_NAME" ]]; then ASSET_URL=""; fi
+# Parse using helper script
+info "Parsing release JSON..."
+# Feed JSON via stdin to parser to avoid temp files
+PARSE_OUTPUT=$(
+  printf '%s' "$RELEASE_JSON" | "$PARSER_CMD" - "$PATTERN" 2>/dev/null || true
+)
+
+# Ensure parse output present
+if [[ -z "$PARSE_OUTPUT" ]]; then
+  error "Failed to parse release JSON with $PARSER_CMD"
+  exit 3
 fi
 
-if [[ -z "$ASSET_URL" || "$ASSET_URL" == "null" ]]; then
+# Read key=value lines
+eval "$(printf '%s\n' "$PARSE_OUTPUT" | sed -n 's/^TAG_NAME=/TAG_NAME=/p; s/^ASSET_NAME=/ASSET_NAME=/p; s/^ASSET_URL=/ASSET_URL=/p')"
+
+# sanitize empty/null
+TAG_NAME=${TAG_NAME:-}
+ASSET_NAME=${ASSET_NAME:-}
+ASSET_URL=${ASSET_URL:-}
+
+if [[ -z "$ASSET_URL" ]]; then
   warn "No asset found matching pattern '$PATTERN' in release '$TAG_NAME'."
   info "Available assets:"
   if command -v jq >/dev/null 2>&1; then
     echo "$RELEASE_JSON" | jq -r '.assets[]?.name'
   else
+    # fallback crude listing
     echo "$RELEASE_JSON" | tr '\n' ' ' | sed -E 's/.*"assets":[[:space:]]*$$([^]]*)$$.*/\1/' | \
       awk -v RS='},' '{ if (match($0, /"name":[[:space:]]*"([^"]+)"/, n)) print n[1] }'
   fi
   exit 4
 fi
 
-OUT="${ASSET_NAME##*/}"
-info "Downloading asset '$ASSET_NAME' from release '$TAG_NAME'..."
-# Use curl to follow redirects and show progress; save with final filename
-curl -L -o "$OUT" "$ASSET_URL"
+# Determine output file path
+OUTPATH="$OUT"
+if [[ -z "$OUTPATH" ]]; then
+  OUTPATH="${ASSET_NAME##*/}"
+else
+  # If OUTPATH is a directory, append filename
+  if [[ -d "$OUTPATH" ]]; then
+    OUTPATH="${OUTPATH%/}/${ASSET_NAME##*/}"
+  else
+    # If ends with / treat as dir (even if non-existent)
+    if [[ "${OUTPATH: -1}" == "/" ]]; then
+      mkdir -p "$OUTPATH"
+      OUTPATH="${OUTPATH%/}/${ASSET_NAME##*/}"
+    fi
+  fi
+fi
 
-info "Successfully downloaded: $OUT"
+info "Downloading asset '$ASSET_NAME' from release '$TAG_NAME' to '$OUTPATH'..."
+curl -L -o "$OUTPATH" "$ASSET_URL"
+
+info "Successfully downloaded: $OUTPATH"
 
