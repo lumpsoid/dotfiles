@@ -3,3 +3,4 @@
 *#
 *~
 .local/share/applications/org.telegram.desktop*
+.config/nvim
