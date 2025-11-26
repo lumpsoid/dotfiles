@@ -191,7 +191,7 @@ layout {
 // which may be more convenient to use.
 spawn-at-startup "dbus-update-activation-environment" "DISPLAY" "XAUTHORITY" "WAYLAND_DISPLAY"
 spawn-at-startup "waybar"
-spawn-at-startup "wired"
+spawn-at-startup "dunst"
 spawn-at-startup "setup-ssh-agent.sh"
 spawn-at-startup "foot" "--server"
 
