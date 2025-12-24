@@ -1,6 +1,148 @@
 {
-    "workbench.colorTheme": "Monokai",
     "editor.fontFamily": "Cascadia Code",
-    "editor.fontSize": 15
+    "editor.fontSize": 15,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "vim.leader": "<space>",
+    "vim.normalModeKeyBindingsNonRecursive": [
+        // ---------- FZF / Search equivalents ----------
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "e",
+                "w"
+            ],
+            "commands": [
+                "workbench.action.problems.focus"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "e",
+                "d"
+            ],
+            "commands": [
+                "workbench.actions.view.problems"
+            ]
+        },
+        // ---------- Diagnostics ----------
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "e",
+                "n"
+            ],
+            "commands": [
+                "editor.action.marker.next"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "e",
+                "p"
+            ],
+            "commands": [
+                "editor.action.marker.prev"
+            ]
+        },
+        // ---------- LSP ----------
+        {
+            "before": [
+                "K"
+            ],
+            "commands": [
+                "editor.action.showHover"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "A"
+            ],
+            "commands": [
+                "editor.action.referenceSearch.trigger"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "d"
+            ],
+            "commands": [
+                "editor.action.revealDefinition"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "i"
+            ],
+            "commands": [
+                "editor.action.goToImplementation"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "t"
+            ],
+            "commands": [
+                "editor.action.goToTypeDefinition"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "r"
+            ],
+            "commands": [
+                "editor.action.rename"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "f"
+            ],
+            "commands": [
+                "editor.action.formatDocument"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "a"
+            ],
+            "commands": [
+                "editor.action.codeAction"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "s",
+                "f"
+            ],
+            "commands": [
+                "workbench.action.quickOpen"
+            ]
+        }
+    ],
+    "workbench.colorTheme": "Solarized Light",
+    "git.blame.editorDecoration.enabled": false
 }
-
