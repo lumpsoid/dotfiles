@@ -3,7 +3,7 @@
 # Battery Monitor Script
 # Usage: ./battery_monitor.sh [--watch]
 
-BATTERY_PATH="/sys/class/power_supply/BAT1"
+BATTERY_PATH="/sys/class/power_supply/BAT*"
 AC_PATH="/sys/class/power_supply/A*"
 
 # Colors for output
