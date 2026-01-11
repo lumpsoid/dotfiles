@@ -17,7 +17,6 @@ alias dformat='dart format .'
 # Disk Usage Variants
 alias duh='du -h'                   # Human-readable disk usage
 alias dud='du -hd 1'                # Disk usage, depth 1
-alias duds='du -hd 1 | sort -h'      # Disk usage, depth 1, sorted
 alias dud2='du -hd 2'               # Disk usage, depth 2
 alias dud2s='du -hd 2 | sort -h'     # Sorted disk usage
 
