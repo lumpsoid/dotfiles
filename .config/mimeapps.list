@@ -17,11 +17,12 @@ x-scheme-handler/http=librewolf.desktop;
 x-scheme-handler/https=librewolf.desktop;
 x-scheme-handler/tg=nctg.desktop;
 x-scheme-handler/ftp=librewolf.desktop;
+application/pdf=librewolf.desktop;
 
 [Default Applications]
 application/json=json-previewer.desktop
 application/*=librewolf.desktop
-application/pdf=zathura.desktop;
+application/pdf=librewolf.desktop
 application/x-extension-htm=librewolf.desktop
 application/x-extension-html=librewolf.desktop
 application/x-extension-shtml=librewolf.desktop
