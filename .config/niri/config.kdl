@@ -193,7 +193,6 @@ spawn-at-startup "dbus-update-activation-environment" "DISPLAY" "XAUTHORITY" "WA
 spawn-at-startup "waybar"
 spawn-at-startup "dunst"
 spawn-at-startup "setup-ssh-agent.sh"
-spawn-at-startup "foot" "--server"
 
 // Uncomment this line to ask the clients to omit their client-side decorations if possible.
 // If the client will specifically ask for CSD, the request will be honored.
