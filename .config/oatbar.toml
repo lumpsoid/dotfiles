@@ -194,7 +194,7 @@ ramp = [["0", "󰃞 ${value}"], ["50", "󰃟 ${value}"], ["90", "󰃠 ${value}"]
 # find /proc/asound -name status -exec grep -v closed {} +i
 [[command]]
 name = "privacy_mic_status"
-command = "cat /proc/asound/card2/pcm0c/sub0/status | grep ':' | cut -d ':' -f 2- | sed 's/^ *//' | head -n 1"
+command = "grep -q 'RUNNING' /proc/asound/card*/pcm*c/sub*/status && echo 'RUNNING' || echo 'closed'"
 once = true
 
 # Displays when mic is being used
