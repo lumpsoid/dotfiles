@@ -12,13 +12,12 @@ blocks_right = [
   "network",
   "screen_brightness",
   "battery",
-  "R",
 ]
-margin = { top = 20, bottom = 10 }
+margin = { top = 5, bottom = 10 }
 background = "#00000000"
 
 [[default_block]]
-font = "Cascadia Code 12"
+font = "Cascadia Code 10"
 background = "${base}"
 foreground = "${text}"
 
