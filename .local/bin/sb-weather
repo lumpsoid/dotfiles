@@ -1,54 +1,40 @@
-#!/bin/sh
+#!/usr/bin/env bash
+# weather.sh — current temp + rain/snow chance + high temp with XDG cache
+# Output: ☔--% 🥶--° 🌞--°
 
-# Displays today's precipication chance (☔), and daily low (🥶) and high (🌞).
-# Usually intended for the statusbar.
+set -euo pipefail
 
-url="${WTTRURL:-wttr.in}"
-weatherreport="${XDG_CACHE_HOME:-$HOME/.cache}/weatherreport"
-location="Belgrade"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/weather"
+CACHE_FILE="$CACHE_DIR/belgrade.json"
+CACHE_TTL=1800  # 30 minutes in seconds
+URL="https://wttr.in/Belgrade?format=j1"
 
-# Get a weather report from 'wttr.in' and save it locally.
-getforecast() { timeout --signal=1 2s curl -sf "$url/$location" > "$weatherreport" || exit 1; }
+mkdir -p "$CACHE_DIR"
 
-# Forecast should be updated only once a day.
-checkforecast() {
-	[ -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null |
-		cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ]
-}
+# Check if cache is fresh
+use_cache=false
+if [[ -f "$CACHE_FILE" ]]; then
+    cache_age=$(( $(date +%s) - $(date -r "$CACHE_FILE" +%s 2>/dev/null || echo 0) ))
+    if (( cache_age < CACHE_TTL )); then
+        use_cache=true
+    fi
+fi
 
-getprecipchance() {
-	echo "$weatherdata" | sed '16q;d' |    # Extract line 16 from file
-		grep -wo "[0-9]*%" |           # Find a sequence of digits followed by '%'
-		sort -rn |                     # Sort in descending order
-		head -1q                       # Extract first line
-}
+if $use_cache; then
+    data=$(cat "$CACHE_FILE")
+else
+    data=$(curl -fsSL "$URL") || { echo "Error: failed to fetch weather" >&2; exit 1; }
+    echo "$data" > "$CACHE_FILE"
+fi
 
-getdailyhighlow() {
-	echo "$weatherdata" | sed '13q;d' |      # Extract line 13 from file
-		grep -o "m\\([-+]\\)*[0-9]\\+" | # Find temperatures in the format "m<signed number>"
-		sed 's/[+m]//g' |                # Remove '+' and 'm'
-		sort -g |                        # Sort in ascending order
-		sed -e 1b -e '$!d'               # Extract the first and last lines
-}
+# Parse values
+rain=$(echo "$data"    | grep -o '"chanceofrain": *"[^"]*"'  | head -1 | grep -o '[0-9]*')
+temp_c=$(echo "$data"  | grep -o '"temp_C": *"[^"]*"'        | head -1 | grep -o '\-\?[0-9]*')
+max_c=$(echo "$data"   | grep -o '"maxtempC": *"[^"]*"'      | head -1 | grep -o '\-\?[0-9]*')
 
-readfile() { weatherdata="$(cat "$weatherreport")" ;}
+# Fallbacks
+rain="${rain:-0}"
+temp_c="${temp_c:-?}"
+max_c="${max_c:-?}"
 
-showweather() {
-	readfile
-	printf "☔%s 🥶%s° 🌞%s°\n" "$(getprecipchance)" $(getdailyhighlow)
-}
-
-case $BLOCK_BUTTON in
-	1) setsid -f "$TERMINAL" -e less -Sf "$weatherreport" ;;
-	2) getforecast && showweather ;;
-	3) notify-send "🌈 Weather module" "\- Left click for full forecast.
-- Middle click to update forecast.
-☔: Chance of rain/snow
-🥶: Daily low
-🌞: Daily high" ;;
-	6) "$TERMINAL" -e "$EDITOR" "$0" ;;
-esac
-
-checkforecast || getforecast
-
-showweather
+echo "☔${rain}% 🥶${temp_c}° 🌞${max_c}°"
