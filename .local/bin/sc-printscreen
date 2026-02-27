@@ -1,30 +1,59 @@
 #!/usr/bin/env sh
+# imagemagick package
+# xclip package (x11) / wl-copy + grim + slurp (wayland)
 
-#imagemagick package
-#xclip package
+timestamp=$(date +%Y%m%d%H%M%S)
+tmp_file="/tmp/screenshot_${timestamp}.png"
+out_dir="$HOME/Pictures/Screenshots"
+out_file="${out_dir}/${timestamp}.avif"
 
-if [ "$XDG_SESSION_TYPE" = "x11" ]; then
-    timestamp=$(date +%Y%m%d%H%M%S)
-    import "/tmp/$timestamp.png" &&
-    cat "/tmp/$timestamp.png" | xclip -selection clipboard -target image/png -i | notify-send 'screenshot done' &&
-    magick -quality 57 /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".avif &&
-    # cjxl /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".jxl -q 60 --num_threads=4 &&
-    rm /tmp/"$timestamp".png &&
-    exit;
-fi
+cleanup() {
+    [ -f "$tmp_file" ] && rm -f "$tmp_file"
+}
+trap cleanup EXIT
 
-if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
-    timestamp=$(date +%Y%m%d%H%M%S)
-    geometry=$(slurp)
-    if [ "$geometry" = "" ]; then
-      exit;
+capture() {
+    if [ "$XDG_SESSION_TYPE" = "x11" ]; then
+        import "$tmp_file"
+    elif [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+        geometry=$(slurp) || return 1
+        [ -z "$geometry" ] && notify-send 'Screenshot' 'No area selected' && return 1
+        grim -g "$geometry" "$tmp_file"
+    else
+        notify-send "Screenshot: XDG_SESSION_TYPE not matched"
+        exit 1
     fi
-    grim -g "$geometry" /tmp/"$timestamp".png &&
-    wl-copy < /tmp/"$timestamp".png &&
-    #cjxl /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".jxl -q 60 --num_threads=4 &&
-    magick -quality 57 /tmp/"$timestamp".png ~/Pictures/Screenshots/"$timestamp".avif &&
-    rm /tmp/"$timestamp".png &&
-    exit;
+}
+
+copy_to_clipboard() {
+    if [ "$XDG_SESSION_TYPE" = "x11" ]; then
+        xclip -selection clipboard -target image/png -i < "$tmp_file"
+    elif [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+        wl-copy < "$tmp_file"
+    fi
+}
+
+if ! capture; then
+    notify-send 'Screenshot' 'Action canceled or failed'
+    exit 1
 fi
 
-notify-send "Screenshot: XDG_SESSION_TYPE not matched"
+[ ! -f "$tmp_file" ] && notify-send 'Screenshot' 'Capture file missing' && exit 1
+
+mkdir -p "$out_dir" || { notify-send 'Screenshot' "Cannot create output dir: $out_dir"; exit 1; }
+
+if ! copy_to_clipboard; then
+    notify-send 'Screenshot' 'Failed to copy to clipboard'
+    exit 1
+fi
+
+if ! magick -quality 57 "$tmp_file" "$out_file"; then
+    notify-send 'Screenshot' 'Conversion to AVIF failed'
+    exit 1
+fi
+
+# Uncomment to use JXL instead:
+# cjxl "$tmp_file" "${out_dir}/${timestamp}.jxl" -q 60 --num_threads=4 || \
+#     { notify-send 'Screenshot' 'Conversion to JXL failed'; exit 1; }
+
+notify-send 'Screenshot' 'Saved and copied to clipboard'
