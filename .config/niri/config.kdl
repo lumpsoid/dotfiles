@@ -190,8 +190,14 @@ layout {
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 spawn-at-startup "dbus-update-activation-environment" "DISPLAY" "XAUTHORITY" "WAYLAND_DISPLAY"
-spawn-at-startup "waybar"
+spawn-at-startup "swayidle" "-w" \
+  "timeout" "600" "niri msg action power-off-monitors"
+
 spawn-at-startup "dunst"
+
+spawn-at-startup "waypaper" "--backend" "awww" "--restore"
+spawn-sh-at-startup "dms run"
+
 spawn-at-startup "setup-ssh-agent.sh"
 
 // Uncomment this line to ask the clients to omit their client-side decorations if possible.
