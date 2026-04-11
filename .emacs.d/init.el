@@ -590,7 +590,7 @@ Excludes the current buffer file and sorts files alphabetically."
 
     ;; By default, lspce will not write log out to anywhere. 
     ;; To enable logging, you can add the following line
-    (lspce-enable-logging)
+    ;;(lspce-enable-logging)
     ;; You can enable/disable logging on the fly by calling `lspce-enable-logging' or `lspce-disable-logging'.
     
     (define-key lspce-mode-map (kbd "C-c l h") 'lspce-help-at-point)
