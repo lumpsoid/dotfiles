@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# =============================================================================
+# refresh-mirrors.sh
+#
+# WHY THIS SCRIPT EXISTS:
+#   Arch Linux packages are served from community mirrors worldwide. Over time
+#   your mirrorlist can become stale — mirrors go offline, get slow, or fall
+#   out of sync with the main repos. When that happens, `pacman -Syu` fails
+#   with 503 / 404 errors even though the package exists and your system is
+#   fine. This script uses `reflector` to benchmark and regenerate the
+#   mirrorlist with the fastest, most up-to-date mirrors available right now.
+#
+# USAGE:
+#   chmod +x refresh-mirrors.sh
+#   sudo ./refresh-mirrors.sh
+# =============================================================================
+set -euo pipefail
+# -e  exit immediately if any command fails
+# -u  treat unset variables as errors
+# -o pipefail  catch failures inside pipes (e.g. cmd1 | cmd2)
+
+# --- Safety check: must run as root ----------------------------------------
+if [[ $EUID -ne 0 ]]; then
+    echo "Not root — re-launching with sudo..."
+    exec sudo bash "$0" "$@"
+fi
+
+# --- Safety check: reflector must be installed ------------------------------
+if ! command -v reflector &>/dev/null; then
+    echo "reflector is not installed. Installing it now..."
+    pacman -S --noconfirm reflector
+fi
+
+MIRRORLIST="/etc/pacman.d/mirrorlist"
+BACKUP="/etc/pacman.d/mirrorlist.bak"
+
+# --- Back up the current mirrorlist -----------------------------------------
+# Always keep a backup so you can restore manually if something goes wrong:
+#   sudo cp /etc/pacman.d/mirrorlist.bak /etc/pacman.d/mirrorlist
+echo "Backing up current mirrorlist to $BACKUP ..."
+cp "$MIRRORLIST" "$BACKUP"
+
+# --- Regenerate the mirrorlist with reflector --------------------------------
+echo "Fetching and benchmarking mirrors..."
+
+# reflector flags explained:
+#   --protocol https   HTTPS only — avoids plain-HTTP mirrors that could be tampered with
+#   --age 12           Only mirrors synced with the master repo within the last 12 hours.
+#                      Better than --latest N (which picks the N most recently synced
+#                      regardless of speed). 12 h is a sweet spot: fresh enough for
+#                      current packages, broad enough to cover all regions.
+#   --sort rate        Sort survivors by download speed (reflector times a real download
+#                      from each). Fastest mirror ends up first, so pacman always tries
+#                      it first.
+#   --number 10        Keep only the top 10 after sorting. More = longer fallback list,
+#                      but 10 is plenty and keeps the file readable.
+#   --save             Overwrite the live mirrorlist; pacman reads this on every operation.
+reflector \
+    --protocol https \
+    --age 12 \
+    --sort rate \
+    --number 10 \
+    --save "$MIRRORLIST"
+
+echo "New mirrorlist saved to $MIRRORLIST"
+
+# --- Show what we ended up with ---------------------------------------------
+echo ""
+echo "Active mirrors:"
+grep "^Server" "$MIRRORLIST"
+
+# --- Sync package databases with the new mirrors ----------------------------
+echo ""
+echo "Syncing package databases..."
+pacman -Sy
+# -S  sync
+# -y  refresh the package databases from the new mirrors
+# (not -Syu: we leave the actual upgrade decision to the user)
+
+echo ""
+echo "Done. Run 'sudo pacman -Su' to apply any pending upgrades."
