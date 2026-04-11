@@ -174,7 +174,9 @@ This function is intended for frame creation hooks."
          ;; theme
          '(f
            avy
-
+           evil
+           evil-collection ; integrates evil with many packages
+           
            ;;dracula-theme
            ;; completion
            vertico
@@ -1043,6 +1045,97 @@ you'll be prompted to select the end point of the region."
   ;; Set up the org-capture shortcut
   (global-set-key (kbd "C-c c") 'org-capture))
 
+(defun my/configure-evil ()
+  "Configure Evil mode for Vim keybindings."
+  ;; These must be set BEFORE evil loads
+  (setq evil-want-integration t)       ; required for evil-collection
+  (setq evil-want-keybinding nil)      ; required for evil-collection (disables defaults)
+  (setq evil-want-C-u-scroll t)        ; C-u scrolls up like vim
+  (setq evil-want-C-d-scroll t)
+  (setq evil-undo-system 'undo-redo)   ; use native undo-redo (Emacs 28+)
+  (setq evil-search-module 'evil-search)
+  (setq evil-split-window-below t)
+  (setq evil-vsplit-window-right t)
+
+  (require 'evil)
+  (evil-mode 1)
+
+  ;; evil-collection wires up evil bindings for magit, dired, corfu, etc.
+  (with-eval-after-load 'evil
+    (when (require 'evil-collection nil t)
+      (evil-collection-init)))
+
+  ;; Keep C-u for universal arg in insert/emacs state if you prefer
+  ;; (define-key evil-insert-state-map (kbd "C-u") nil)
+
+  ;; jk to escape insert mode (optional but popular)
+  (with-eval-after-load 'evil
+    (define-key evil-insert-state-map (kbd "j")
+      (lambda ()
+        (interactive)
+        (let ((event (read-event nil nil 0.2)))
+          (if (and event (char-equal event ?k))
+              (evil-normal-state)
+            (insert "j")
+            (when event (push event unread-command-events))))))
+    ;; Or simpler: use key-chord if you add it to packages
+    ;; Or just use C-[ which always works
+
+    ;; Keep Emacs muscle memory for a few things in insert state
+    (define-key evil-insert-state-map (kbd "C-a") #'beginning-of-line)
+    (define-key evil-insert-state-map (kbd "C-e") #'end-of-line)
+    (define-key evil-insert-state-map (kbd "C-k") #'kill-line)
+    (define-key evil-insert-state-map (kbd "C-w") #'backward-kill-word)
+
+    ;; Make movement in normal state use consult
+    (define-key evil-normal-state-map (kbd "C-p") #'consult-find)
+    (define-key evil-normal-state-map (kbd "g s") #'consult-line)  ; like telescope live grep
+
+    ;; Leader key setup (SPC as leader in normal/visual)
+    (evil-set-leader 'normal (kbd "SPC"))
+    (evil-set-leader 'visual (kbd "SPC"))
+    
+    ;; File operations
+    (evil-define-key 'normal 'global (kbd "<leader>ff") #'consult-find)
+    (evil-define-key 'normal 'global (kbd "<leader>fr") #'consult-recent-file)
+    (evil-define-key 'normal 'global (kbd "<leader>fb") #'consult-buffer)
+    (evil-define-key 'normal 'global (kbd "<leader>fg") #'consult-ripgrep)
+    
+    ;; Buffer operations  
+    (evil-define-key 'normal 'global (kbd "<leader>bb") #'consult-buffer)
+    (evil-define-key 'normal 'global (kbd "<leader>bk") #'kill-current-buffer)
+    (evil-define-key 'normal 'global (kbd "<leader>bs") #'save-buffer)
+    
+    ;; Window operations (like vim splits)
+    (evil-define-key 'normal 'global (kbd "<leader>ws") #'split-window-below)
+    (evil-define-key 'normal 'global (kbd "<leader>wv") #'split-window-right)
+    (evil-define-key 'normal 'global (kbd "<leader>wk") #'delete-window)
+    (evil-define-key 'normal 'global (kbd "<leader>wo") #'delete-other-windows)
+    
+    ;; Note / Denote
+    (evil-define-key 'normal 'global (kbd "<leader>nn") #'denote-open-or-create)
+    (evil-define-key 'normal 'global (kbd "<leader>nl") #'denote-link-or-create)
+    (evil-define-key 'normal 'global (kbd "<leader>nb") #'denote-backlinks)
+    
+    ;; Org capture
+    (evil-define-key 'normal 'global (kbd "<leader>oc") #'org-capture)
+    (evil-define-key 'normal 'global (kbd "<leader>oa") #'org-agenda)
+    
+    ;; Magit
+    (evil-define-key 'normal 'global (kbd "<leader>gs") #'magit-status)
+    (evil-define-key 'normal 'global (kbd "<leader>gb") #'magit-blame)
+    
+    ;; LSP (lspce) - available when lspce-mode is active
+    (evil-define-key 'normal 'global (kbd "<leader>lh") #'lspce-help-at-point)
+    (evil-define-key 'normal 'global (kbd "<leader>lr") #'lspce-rename)
+    (evil-define-key 'normal 'global (kbd "<leader>la") #'lspce-code-actions)
+    (evil-define-key 'normal 'global (kbd "<leader>ls") #'lspce-shutdown-server)
+    (evil-define-key 'normal 'global (kbd "g d") #'xref-find-definitions)
+    (evil-define-key 'normal 'global (kbd "g r") #'xref-find-references)
+    (evil-define-key 'normal 'global (kbd "g t") #'xref-find-type-definition)
+    (evil-define-key 'normal 'global (kbd "K")   #'lspce-help-at-point) ; vim convention
+    ))
+
 ;; The main configuration pipeline
 (defun my/init-emacs ()
   "Initialize Emacs with the pipeline of configurations."
@@ -1059,6 +1152,7 @@ you'll be prompted to select the end point of the region."
   (my/emacs-behavior)
   (my/editor)
   (my/xref)
+  (my/configure-evil)
   (my/setup-ui)
   (my/load-personal-scripts)
   (my/utilities)
