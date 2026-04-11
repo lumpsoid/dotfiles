@@ -39,15 +39,20 @@ if [ ! -x "$OPENROUTER_CLI" ]; then
     exit 1
 fi
 
-# Validate commit reference
-if ! git rev-parse --verify "$COMMIT" &>/dev/null; then
-    echo -e "${RED}Error:${NC} Invalid commit reference: $COMMIT" >&2
-    exit 1
-fi
-
 # Get the diff
 echo "🔍 Getting diff for commit: $COMMIT"
-DIFF=$(git show "$COMMIT" --pretty=format: --no-color 2>/dev/null)
+
+# Check if COMMIT uses spread syntax (main..HEAD)
+if [[ "$COMMIT" == *".."* ]]; then
+    DIFF=$(git diff "$COMMIT" --no-color 2>/dev/null)
+else
+    DIFF=$(git show "$COMMIT" \
+        --pretty=format:"commit [REDACTED]%nDate: %cd%n%s" \
+        --no-color 2>/dev/null)
+    if [ -z "$DIFF" ]; then
+        DIFF=$(git diff "$COMMIT" --no-color 2>/dev/null)
+    fi
+fi
 
 if [ -z "$DIFF" ]; then
     echo -e "${RED}Error:${NC} Commit $COMMIT has no changes (empty diff)" >&2
