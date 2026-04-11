@@ -519,7 +519,7 @@ Excludes the current buffer file and sorts files alphabetically."
           (message "No .dart files or matching folders found in current directory"))))
 
     ;; Bind to a key if desired
-    (define-key dart-mode-map (kbd "C-c C-e") 'flutter-extract-first-row-widget)
+    (define-key dart-mode-map (kbd "C-c C-e") 'flutter-extract-widget-to-stateless)
 
     ;; Keybindings
     (define-key dart-mode-map (kbd "C-c C-o") 'dart-format-buffer)
