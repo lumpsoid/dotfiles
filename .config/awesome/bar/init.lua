@@ -28,6 +28,35 @@ local function relevant_tags(t)
   return t.selected or #t:clients() > 0
 end
 
+-- Minimal text layout indicator: a single glyph per layout instead of the
+-- busy default pixmap. Left-click cycles layouts, right-click cycles back.
+local layout_glyph = {
+  tile          = "[]=", -- master + stack
+  tilebottom    = "[]v", -- master on top, stack below
+  fairh         = "[+]", -- equal-width grid
+  magnifier     = "[o]", -- focused enlarged
+  max           = "[ ]", -- fullscreen (monocle)
+  floating      = "><>", -- free placement
+}
+
+local function build_layoutbox(s)
+  local w = wibox.widget.textbox()
+  w.font = beautiful.font
+  local function update()
+    local name = awful.layout.getname(awful.layout.get(s))
+    w.markup = '<span foreground="' .. beautiful.kanagawa.fujiGray .. '">'
+      .. (layout_glyph[name] or name) .. "</span>"
+  end
+  update()
+  tag.connect_signal("property::layout", update)
+  tag.connect_signal("property::selected", update)
+  w.buttons = {
+    awful.button({}, 1, function() awful.layout.inc(1, s) end),
+    awful.button({}, 3, function() awful.layout.inc(-1, s) end),
+  }
+  return w
+end
+
 local function build_taglist(s)
   return awful.widget.taglist({
     screen  = s,
@@ -105,6 +134,7 @@ local function per_screen(s)
         { -- right
           layout  = wibox.layout.fixed.horizontal,
           spacing = beautiful.spacing_md,
+          build_layoutbox(s),
           brightness_w,
           volume_w,
           battery_w,
