@@ -131,10 +131,13 @@ awful.keyboard.append_global_keybindings({
     { description = "more master clients", group = "layout" }),
   awful.key({ modkey, "Shift" }, "l", function() awful.tag.incnmaster(-1, nil, true) end,
     { description = "fewer master clients", group = "layout" }),
-  awful.key({ modkey }, "space", function() awful.layout.inc(1) end,
+  awful.key({ modkey }, "y", function() awful.layout.inc(1) end,
     { description = "next layout", group = "layout" }),
-  awful.key({ modkey, "Shift" }, "space", function() awful.layout.inc(-1) end,
+  awful.key({ modkey, "Shift" }, "y", function() awful.layout.inc(-1) end,
     { description = "previous layout", group = "layout" }),
+  awful.key({ modkey }, "space", function()
+    if client.focus then client.focus:swap(awful.client.getmaster()) end
+  end, { description = "promote to master", group = "client" }),
 })
 
 -- ── Per-client ───────────────────────────────────────────────────
