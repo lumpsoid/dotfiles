@@ -1,5 +1,6 @@
 local awful = require("awful")
 local naughty = require("naughty")
+local gears = require("gears")
 local utils = require("utils")
 
 local M = {}
@@ -43,7 +44,7 @@ function M.new(config)
     end
     
     -- Set up timer for battery monitoring
-    local bat_timer = timer({ timeout = 60 })
+    local bat_timer = gears.timer({ timeout = 60 })
     bat_timer:connect_signal("timeout", check_battery)
     bat_timer:start()
     

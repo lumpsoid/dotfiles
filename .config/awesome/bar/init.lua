@@ -1,154 +1,126 @@
+-- Minimal flat top bar.
+--
+--   1 2 3            12:04              lum  vol  bat   Sun Jul 13
+--
+-- Flat single strip, no floating segments. Only occupied/selected
+-- tags are shown. Hardware widgets are driven by singleton
+-- controllers so the same instances back the media keys (see config/keys).
+local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
-local awful = require("awful")
 local beautiful = require("beautiful")
-local utils = require("utils")
-local naughty = require("naughty")
+
+local volume     = require("bar.volume")
+local battery    = require("bar.battery")
+local brightness = require("bar.brightness")
 
 local M = {}
 
--- Import components
-M.volume = require("bar.volume")
-M.battery = require("bar.battery")
-M.brightness = require("bar.brightness")
+-- Singleton controllers shared with the keybindings.
+M.controllers = {
+  volume     = volume.controller.new(),
+  battery    = battery.controller.new({ notify = true }),
+  brightness = brightness.controller.new(),
+}
 
--- ============================================================
--- Helper Functions
--- ============================================================
-
--- Creates a container with background, rounded corners and margins
-function M.create_widget_container(widget, custom_opts)
-    -- Default options
-    local default_opts = {
-        widget_spacing = beautiful.spacing,
-        bg = beautiful.bg_normal,
-        radius = 20,
-        margin = {
-            left = beautiful.spacing_lg,
-            right = beautiful.spacing_lg,
-            top = beautiful.spacing,
-            bottom = beautiful.spacing
-        }
-    }
-    
-    -- Override defaults with custom options
-    local opts = custom_opts and utils.merge_tables(default_opts, custom_opts) or default_opts
-    
-    -- Apply spacing if widget is a layout
-    if type(widget) == "table" and widget.spacing ~= nil then
-        widget.spacing = opts.widget_spacing
-    end
-    
-    -- Create and return container
-    return wibox.widget({
-        {
-            widget,
-            left = opts.margin.left,
-            right = opts.margin.right,
-            top = opts.margin.top,
-            bottom = opts.margin.bottom,
-            widget = wibox.container.margin,
-        },
-        shape = utils.rounded_rect(opts.radius),
-        bg = opts.bg,
-        widget = wibox.container.background,
-    })
+-- Only surface tags that matter: the selected one and any with clients.
+local function relevant_tags(t)
+  return t.selected or #t:clients() > 0
 end
 
--- Create a date widget with formatted date
-function M.create_date_widget()
-    return wibox.widget.textclock("%a %b %d %Y")
-end
-
--- Create a clock widget with time only
-function M.create_clock_widget()
-    return wibox.widget.textclock("%H:%M")
-end
-
--- Create system tray widget
-function M.create_systray()
-    return wibox.widget.systray()
-end
-
--- Create a taglist widget for the screen
-function M.create_taglist(s, buttons)
-    return awful.widget.taglist({
-        screen = s,
-        buttons = buttons,
-        filter = awful.widget.taglist.filter.all,
-        layout = {
-            layout = wibox.layout.fixed.horizontal,
-            spacing = beautiful.spacing,
-        },
-        style = { shape = gears.shape.circle },
-        widget_template = {
-            {
-                {
-                    {
-                        id = "text_role",
-                        widget = wibox.widget.textbox,
-                    },
-                    layout = wibox.layout.fixed.horizontal,
-                },
-                left = beautiful.spacing,
-                right = beautiful.spacing,
-                widget = wibox.container.margin,
-            },
-            id = "background_role",
-            widget = wibox.container.background,
-        },
-    })
-end
-
--- Create a wibar
-function M.create_wibar(s, widgets)
-   print("Creating wibar for screen", s.index)
-    -- Create wibar
-    local wibar = awful.wibar({
-        height = beautiful.bar_height,
-        bg = "#00000000", -- Transparent background
-        position = "top",
-        screen = s,
-    })
-    
-    -- Setup wibar layout
-    wibar:setup({
-        {
-            layout = wibox.layout.stack,
-            -- Bottom layer: Main wibar content
-            {
-                layout = wibox.layout.align.horizontal,
-                -- Left widgets
-                {
-                    layout = wibox.layout.fixed.horizontal,
-                    M.create_widget_container(widgets.taglist),
-                },
-                -- Middle widgets (empty)
-                nil,
-                -- Right widgets
-                {
-                    layout = wibox.layout.fixed.horizontal,
-                    spacing = beautiful.spacing,
-                    M.create_widget_container(widgets.status_widgets, { widget_spacing = beautiful.spacing_lg }),
-                    M.create_widget_container(widgets.date),
-                },
-            },
-            -- Top layer: Centered clock
-            {
-                M.create_widget_container(widgets.clock),
-                valign = "center",
-                halign = "center",
-                layout = wibox.container.place,
-            },
-        },
-        -- Add margins around entire wibar
-        left = beautiful.useless_gap * 2,
-        right = beautiful.useless_gap * 2,
-        top = beautiful.useless_gap * 2,
+local function build_taglist(s)
+  return awful.widget.taglist({
+    screen  = s,
+    filter  = relevant_tags,
+    style   = { shape = gears.shape.rectangle },
+    layout  = { layout = wibox.layout.fixed.horizontal, spacing = beautiful.spacing },
+    buttons = {
+      awful.button({}, 1, function(t) t:view_only() end),
+      awful.button({ modkey }, 1, function(t)
+        if client.focus then client.focus:move_to_tag(t) end
+      end),
+      awful.button({}, 3, awful.tag.viewtoggle),
+      awful.button({}, 4, function(t) awful.tag.viewprev(t.screen) end),
+      awful.button({}, 5, function(t) awful.tag.viewnext(t.screen) end),
+    },
+    widget_template = {
+      {
+        { id = "text_role", widget = wibox.widget.textbox },
+        left = beautiful.spacing, right = beautiful.spacing,
         widget = wibox.container.margin,
-    })
-    
-    return wibar
+      },
+      id     = "background_role",
+      widget = wibox.container.background,
+    },
+  })
+end
+
+local function per_screen(s)
+  awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+
+  -- Invisible until modkey+r; kept for the run prompt.
+  s.mypromptbox = awful.widget.prompt()
+
+  -- Hardware widgets, wired to the shared controllers.
+  local brightness_w = brightness.createWidget({})
+  local volume_w     = volume.createWidget({})
+  local battery_w    = battery.createWidget({})
+  M.controllers.brightness.set_widget(brightness_w)
+  M.controllers.volume.set_widget(volume_w)
+  M.controllers.battery.set_widget(battery_w)
+
+  -- Silent initial read (no notification) so widgets show real values.
+  -- Battery primes itself via its own timer/call_now.
+  M.controllers.volume.get_level(function(level, status)
+    volume_w:emit_signal("volume::update", level, status)
+  end)
+  M.controllers.brightness.get_level(function(level)
+    brightness_w:emit_signal("brightness::update", level)
+  end)
+  M.controllers.battery.get_status(function(charge, status)
+    battery_w:emit_signal("battery::update", charge, status)
+  end)
+
+  local clock = wibox.widget.textclock('<span foreground="' .. beautiful.fg_normal .. '">%H:%M</span>')
+  clock.font = beautiful.font
+  local date = wibox.widget.textclock('<span foreground="' .. beautiful.kanagawa.fujiGray .. '">%a %b %d</span>')
+  date.font = beautiful.font
+
+  s.mywibar = awful.wibar({
+    position = "top",
+    screen   = s,
+    height   = beautiful.bar_height,
+    bg       = beautiful.bar_bg,
+    widget   = {
+      {
+        layout = wibox.layout.align.horizontal,
+        expand = "none",
+        { -- left
+          layout = wibox.layout.fixed.horizontal,
+          spacing = beautiful.spacing_md,
+          build_taglist(s),
+          s.mypromptbox,
+        },
+        clock, -- center (align + expand="none" keeps it centered)
+        { -- right
+          layout  = wibox.layout.fixed.horizontal,
+          spacing = beautiful.spacing_md,
+          brightness_w,
+          volume_w,
+          battery_w,
+          date,
+          wibox.widget.systray(),
+        },
+      },
+      left   = beautiful.spacing_lg,
+      right  = beautiful.spacing_lg,
+      widget = wibox.container.margin,
+    },
+  })
+end
+
+function M.setup()
+  screen.connect_signal("request::desktop_decoration", per_screen)
 end
 
 return M
